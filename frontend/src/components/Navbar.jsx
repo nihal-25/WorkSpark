@@ -1,4 +1,6 @@
 // src/components/Navbar.jsx
+import { Link } from "react-router-dom";
+
 export default function Navbar() {
   return (
     <nav className="shadow-md fixed w-full z-50">
@@ -13,7 +15,7 @@ export default function Navbar() {
 
           {/* Nav Links */}
           <div className="hidden md:flex space-x-6">
-            <a href="#" className="text-gray-700 hover:text-pink-600">Home</a>
+            <div className="text-gray-700 hover:text-pink-600" > <Link to="/">Home</Link> </div>
             <a href="#" className="text-gray-700 hover:text-pink-600"></a>
             <a href="#" className="text-gray-700 hover:text-pink-600">Saved</a>
             <a href="#" className="text-gray-700 hover:text-pink-600">Your Profile</a>
@@ -21,10 +23,10 @@ export default function Navbar() {
 
           {/* Login / Signup */}
           <div className="hidden md:flex space-x-4">
-            <button className="px-4 py-2 text-sky-500 border border-sky-500 rounded-lg hover:bg-sky-500 hover:text-white transition">
-              Log In
+            <button className="px-4 py-2 bg-white text-sky-500 border border-sky-500 rounded-lg hover:bg-sky-500 hover:text-white transition">
+             <Link to="/login" >Log In</Link>
             </button>
-            <button className="px-4 py-2 bg-sky-500 text-white border border-sky-500 rounded-lg hover:bg-white hover:text-sky-500 transition">
+            <button className="px-4 py-2 bg-sky-500 text-white border border-sky-300 rounded-lg hover:bg-white hover:text-sky-500 transition">
               Sign Up
             </button>
           </div>

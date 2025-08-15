@@ -5,7 +5,7 @@ export default function Login() {
       <form className="flex flex-col gap-4 w-80">
         <input className="p-2 border rounded" type="email" placeholder="Email" />
         <input className="p-2 border rounded" type="password" placeholder="Password" />
-        <button className="bg-blue-500 text-white p-2 rounded">Login</button>
+        <button className="bg-sky-500 text-white p-2 rounded">Login</button>
       </form>
     </div>
   );

@@ -3,6 +3,11 @@ import Navbar from "./components/Navbar";
 import HomeSplit from "./components/HomeSplit";
 import JobSeekerPage from "./pages/JobSeekerPage";
 import RecruiterPage from "./pages/RecruiterPage";
+import ErrorBoundary from "./components/ErrorBoundary";
+import RecruiterButton from "./pages/RecruiterButton"
+import SignupRecruiter from "./pages/SignupRecruiter";
+import JobseekerButton from "./pages/JobSeekerButton"
+import Login from "./pages/Login";
 
 export default function App() {
   return (
@@ -11,9 +16,62 @@ export default function App() {
         <Navbar />
         <div className="pt-16">
           <Routes>
-            <Route path="/" element={<HomeSplit />} />
-            <Route path="/jobseeker" element={<JobSeekerPage />} />
-            <Route path="/recruiter" element={<RecruiterPage />} />
+            <Route 
+              path="/" 
+              element={
+                <ErrorBoundary componentName="HomeSplit">
+                  <HomeSplit />
+                </ErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/jobseeker" 
+              element={
+                <ErrorBoundary componentName="JobSeekerPage">
+                  <JobSeekerPage />
+                </ErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/login" 
+              element={
+                <ErrorBoundary componentName="Login">
+                  <Login />
+                </ErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/recruiter_button" 
+              element={
+                <ErrorBoundary componentName="RecruiterButton">
+                  <RecruiterButton />
+                </ErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/jobseeker_button" 
+              element={
+                <ErrorBoundary componentName="JobseekerButton">
+                  <JobseekerButton />
+                </ErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/SignupRecruiter" 
+              element={
+                <ErrorBoundary componentName="SignupRecruiter">
+                  <SignupRecruiter />
+                </ErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/SignupRecruiter" 
+              element={
+                <ErrorBoundary componentName="SignupRecruiter">
+                  <SignupRecruiter />
+                </ErrorBoundary>
+              } 
+            />
           </Routes>
         </div>
       </div>

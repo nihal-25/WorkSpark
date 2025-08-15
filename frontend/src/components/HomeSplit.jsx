@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function HomeSplit() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
@@ -7,14 +9,9 @@ export default function HomeSplit() {
         <p className="mb-6 max-w-md text-center">
           Post jobs, connect with top talent, and hire faster than ever before.
         </p>
-        <Link
-          to="/recruiter"
-          className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600"
-        >
-          Go to Recruiter Portal
-        </Link>
+
         <button className="bg-white text-sky-600 px-6 py-3 rounded-lg font-semibold hover:text-pink-700 transition">
-          Post a Job
+        <Link to="/recruiter_button" >Post a Job</Link>  
         </button>
       </div>
 
@@ -24,14 +21,8 @@ export default function HomeSplit() {
         <p className="mb-6 max-w-md text-slate-500 text-center">
           Discover jobs, swipe right to save, and match with recruiters instantly.
         </p>
-         <Link
-          to="/jobseeker"
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-        >
-          Go to Job Seeker Portal
-        </Link>
-        <button className="bg-sky-600 px-6 py-3 rounded-lg font-semibold hover:bg-pink-700 transition">
-          Find Jobs
+         <button className="px-4 py-2 bg-sky-500 text-white border border-sky-500 rounded-lg hover:bg-white hover:text-sky-500 transition">
+         <Link to="/jobseeker_button">Find Jobs</Link>
         </button>
       </div>
     </div>
