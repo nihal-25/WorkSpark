@@ -1,13 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomeSplit from "./components/HomeSplit";
-import JobSeekerPage from "./pages/JobSeekerPage";
-import RecruiterPage from "./pages/RecruiterPage";
+import JobSeekerPage from "./pages/JobSeeker/JobSeekerPage";
+import RecruiterPage from "./pages/Recruiter/RecruiterPage";
 import ErrorBoundary from "./components/ErrorBoundary";
-import RecruiterButton from "./pages/RecruiterButton"
-import SignupRecruiter from "./pages/SignupRecruiter";
-import JobseekerButton from "./pages/JobSeekerButton"
-import Login from "./pages/Login";
+import RecruiterButton from "./pages/Recruiter/RecruiterButton"
+import SignupRecruiter from "./pages/Recruiter/SignupRecruiter";
+import SignupGlobal from "./components/SignUpGlobal";
+import JobseekerButton from "./pages/JobSeeker/JobSeekerButton"
+import Login from "./components/LoginGlobal";
+import JobseekerDashboard from "./pages/JobSeeker/jobSeekerDashboard";
+import RecruiterDashboard from "./pages/Recruiter/RecruiterDashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   return (
@@ -29,6 +33,14 @@ export default function App() {
               element={
                 <ErrorBoundary componentName="JobSeekerPage">
                   <JobSeekerPage />
+                </ErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/signup" 
+              element={
+                <ErrorBoundary componentName="SignupGlobal">
+                  <SignupGlobal />
                 </ErrorBoundary>
               } 
             />
@@ -71,6 +83,28 @@ export default function App() {
                   <SignupRecruiter />
                 </ErrorBoundary>
               } 
+            />
+            {/* ✅ Protected Routes */}
+            <Route
+              path="/jobseeker/dashboard"
+              element={
+                <ProtectedRoute requiredRole="jobseeker">
+                  <ErrorBoundary componentName="JobseekerDashboard">
+                    <JobseekerDashboard />
+                  </ErrorBoundary>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/recruiter/dashboard"
+              element={
+                <ProtectedRoute requiredRole="recruiter">
+                  <ErrorBoundary componentName="RecruiterDashboard">
+                    <RecruiterDashboard />
+                  </ErrorBoundary>
+                </ProtectedRoute>
+              }
             />
           </Routes>
         </div>

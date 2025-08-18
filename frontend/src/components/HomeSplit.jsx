@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-
+import Navbar from "./Navbar" /*Do this so that your navigation bar scrolls along with Home PAge? */
 export default function HomeSplit() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen">

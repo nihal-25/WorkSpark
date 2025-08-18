@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <nav className="shadow-md fixed w-full z-50">
+    <nav className="shadow-md bg-white fixed w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
@@ -27,7 +27,7 @@ export default function Navbar() {
              <Link to="/login" >Log In</Link>
             </button>
             <button className="px-4 py-2 bg-sky-500 text-white border border-sky-300 rounded-lg hover:bg-white hover:text-sky-500 transition">
-              Sign Up
+             <Link to="signup">Sign Up</Link> 
             </button>
           </div>
 
