@@ -6,6 +6,7 @@ import RecruiterPage from "./pages/Recruiter/RecruiterPage";
 import ErrorBoundary from "./components/ErrorBoundary";
 import RecruiterButton from "./pages/Recruiter/RecruiterButton"
 import SignupRecruiter from "./pages/Recruiter/SignupRecruiter";
+import SignupJobSeeker from "./pages/JobSeeker/SignupJobSeeker"
 import SignupGlobal from "./components/SignUpGlobal";
 import JobseekerButton from "./pages/JobSeeker/JobSeekerButton"
 import Login from "./components/LoginGlobal";
@@ -69,10 +70,10 @@ export default function App() {
               } 
             />
             <Route 
-              path="/SignupRecruiter" 
+              path="/SignupJobSeeker" 
               element={
-                <ErrorBoundary componentName="SignupRecruiter">
-                  <SignupRecruiter />
+                <ErrorBoundary componentName="SignupJobSeeker">
+                  <SignupJobSeeker />
                 </ErrorBoundary>
               } 
             />
@@ -86,24 +87,22 @@ export default function App() {
             />
             {/* ✅ Protected Routes */}
             <Route
-              path="/jobseeker/dashboard"
+              path="/jobseeker-dashboard"
               element={
-                <ProtectedRoute requiredRole="jobseeker">
+              
                   <ErrorBoundary componentName="JobseekerDashboard">
                     <JobseekerDashboard />
                   </ErrorBoundary>
-                </ProtectedRoute>
               }
             />
 
             <Route
-              path="/recruiter/dashboard"
+              path="/recruiter-dashboard"
               element={
-                <ProtectedRoute requiredRole="recruiter">
                   <ErrorBoundary componentName="RecruiterDashboard">
                     <RecruiterDashboard />
                   </ErrorBoundary>
-                </ProtectedRoute>
+      
               }
             />
           </Routes>

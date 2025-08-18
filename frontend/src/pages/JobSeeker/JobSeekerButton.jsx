@@ -1,4 +1,5 @@
 //This is the button on the homeSplit Screen
+import { Link } from "react-router-dom";
 export default function JobseekerButton() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
@@ -8,7 +9,7 @@ export default function JobseekerButton() {
           Discover jobs, swipe right to save, and match with recruiters instantly.
         </p>
          <button className="px-4 py-2 bg-sky-500 text-white border border-sky-500 rounded-lg hover:bg-white hover:text-sky-500 transition">
-            Sign up Today!
+         <Link to ="/signup">   Sign up Today!</Link>
         </button>
       </div>
     </div>

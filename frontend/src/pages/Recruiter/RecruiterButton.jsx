@@ -10,7 +10,7 @@ export default function RecruiterButton() {
           Post jobs, connect with top talent, and hire faster than ever before.
         </p>
         <button className="bg-white text-sky-600 px-6 py-3 rounded-lg font-semibold hover:text-pink-700 transition">
-         <Link to="/SignupRecruiter">Sign Up today!</Link>   
+         <Link to="/signup">Sign Up today!</Link>   
         </button>
       </div>
     </div>

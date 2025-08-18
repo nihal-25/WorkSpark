@@ -1,58 +1,56 @@
+import axios from "axios";
 import { useState } from "react";
-import API from "../pages/api";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
-  const res = await API.post("/auth/login", {
-    email,
-    password,
-  });
+      const res = await axios.post("http://localhost:5000/auth/login", {
+        email,
+        password,
+      });
 
-  const userData = res.data;
 
-  // Save user info (localStorage or context)
-  localStorage.setItem("userInfo", JSON.stringify(userData));
+     localStorage.setItem("user", JSON.stringify(res.data.user));
 
-  // Redirect based on role
-  if (userData.role === "recruiter") {
-    window.location.href = "../pages/Recruiter/Recruiter";
-  } else if (userData.role === "jobseeker") {
-    window.location.href = "/jobseeker-dashboard";
-  }
+     
+      // 👇 redirect based on role
+      if (res.data.user.role === "recruiter") {
+        navigate("/recruiter-dashboard");
+      } else {
+        navigate("/jobseeker-dashboard");
+      }
 
-} catch (err) {
-  if (err.response) {
-    // Backend responded with an error
-    console.error("Error response:", err.response.data);
-    alert(`LOGIN failed: ${err.response.data.message || JSON.stringify(err.response.data)}`);
-  } else if (err.request) {
-    // Request was sent but no response
-    console.error("No response from server:", err.request);
-    alert("LOGIN failed: No response from server");
-  } else {
-    // Something else went wrong
-    console.error("Error:", err.message);
-    alert("LOGIN failed: " + err.message);
-  }
-}
+    } catch (err) {
+      console.error("LOGIN failed:", err.response?.data || err.message);
+      alert("Login failed: " + (err.response?.data?.message || err.message));
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="email" name="email" placeholder="Email" onChange={handleChange} />
-      <input type="password" name="password" placeholder="Password" onChange={handleChange} />
+    <div className="flex flex-col items-center mt-10">
+    <form onSubmit={handleLogin} className="flex flex-col gap-3 w-64">
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
       <button type="submit">Login</button>
     </form>
+    </div>
   );
 }
