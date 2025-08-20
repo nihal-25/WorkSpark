@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import NavbarLoggedIn from "./components/NavbarLoggedIn";
 import HomeSplit from "./components/HomeSplit";
 import JobSeekerPage from "./pages/JobSeeker/JobSeekerPage";
 import RecruiterPage from "./pages/Recruiter/RecruiterPage";
@@ -13,12 +14,17 @@ import Login from "./components/LoginGlobal";
 import JobseekerDashboard from "./pages/JobSeeker/jobSeekerDashboard";
 import RecruiterDashboard from "./pages/Recruiter/RecruiterDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AuthProvider from "./context/AuthProvider"; // ✅
+import AuthContext from "./context/AuthContext"; 
 
 export default function App() {
+  
   return (
+    <AuthProvider>
     <Router>
-      <div className="bg-gray-50 min-h-screen">
-        <Navbar />
+      <div className="min-h-screen bg-gray-50">
+         <Navbar />
+
         <div className="pt-16">
           <Routes>
             <Route 
@@ -89,19 +95,22 @@ export default function App() {
             <Route
               path="/jobseeker-dashboard"
               element={
-              
+                  <ProtectedRoute>
                   <ErrorBoundary componentName="JobseekerDashboard">
                     <JobseekerDashboard />
                   </ErrorBoundary>
+                  </ProtectedRoute>
               }
             />
 
             <Route
               path="/recruiter-dashboard"
               element={
+                  <ProtectedRoute>
                   <ErrorBoundary componentName="RecruiterDashboard">
                     <RecruiterDashboard />
                   </ErrorBoundary>
+                  </ProtectedRoute>
       
               }
             />
@@ -109,5 +118,6 @@ export default function App() {
         </div>
       </div>
     </Router>
+    </AuthProvider>
   );
 }
