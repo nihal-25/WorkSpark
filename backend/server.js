@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js"
+import jobRoutes from "./routes/jobRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -18,6 +19,7 @@ app.use(cors());
 // Routes
 app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
+app.use("/jobs", jobRoutes);
 // Test route
 app.get("/", (req, res) => {
   res.send("API is running...");
