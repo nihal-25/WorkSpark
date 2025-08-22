@@ -1,0 +1,119 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { motion, useAnimation } from "framer-motion";
+
+export default function JobSeekerDashboard() {
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/jobs")
+      .then((res) => setJobs(res.data))
+      .catch((err) => console.error("Fetch jobs failed:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSwipe = (direction) => {
+    const job = jobs[currentIndex];
+    if (!job) return;
+
+    if (direction === "right") {
+      alert(`✅ Saved job: ${job.title}`);
+      // TODO: save to backend
+    }
+   if (direction === "back") {
+    console.log("went back to previous job")
+    }
+     else {
+      console.log(`❌ Skipped job: ${job.title}`);
+    }
+
+    // Show next card
+    setCurrentIndex((prev) => prev + 1);
+  };
+
+  if (loading) {
+    return <div className="p-6">Loading jobs…</div>;
+  }
+
+  if (currentIndex >= jobs.length) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <h2 className="text-xl font-bold text-gray-600">No more jobs 🎉</h2>
+      </div>
+    );
+  }
+
+  const job = jobs[currentIndex];
+
+  return (
+    <div className="flex flex-col items-center justify-center bg-gray-50">
+      <h2 className="mb-6 text-2xl font-bold">Swipe Jobs fix this kept this blue to fix later</h2>
+    
+    {/* Has buttons, and job card */}  
+        <div className="flex items-center justify-center h-100 bg-sky-500 gap-5 -mt-7">
+      <button
+          onClick={() => handleSwipe("left")}
+          className="px-6 py-3 bg-red-200 text-white rounded-full text-lg"
+        >
+          ❌
+        </button>
+      {/* Job Card */}
+      <motion.div
+        key={job._id}
+        className="relative w-80 h-[300px] bg-white shadow-xl rounded-2xl p-6 flex flex-col justify-between"
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={1}
+        onDragEnd={(e, info) => {
+          if (info.offset.x > 150) {
+            handleSwipe("right");
+          } else if (info.offset.x < -150) {
+            handleSwipe("left");
+          }
+        }}
+      >
+        <div>
+          <h3 className="text-xl font-semibold">{job.title}</h3>
+          <p className="text-gray-600">{job.company} • {job.location}</p>
+          <span className="text-sm font-medium text-gray-800">
+          💰 {job.salary || "Not specified"}
+        </span>
+          <p className="mt-2 text-sm text-gray-700">
+            {job.description?.slice(0, 120)}
+            {job.description?.length > 120 ? "…" : ""}
+          </p>
+          {!!job.requirements?.length && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {job.requirements.slice(0, 3).map((req, idx) => (
+                <span key={idx} className="px-2 py-1 text-xs bg-gray-100 rounded">
+                  {req}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        
+      </motion.div>
+
+
+     
+        
+        <button
+          onClick={() => handleSwipe("right")}
+          className="px-6 py-3 bg-green-200 text-white rounded-full text-lg"
+        >
+          ✅
+        </button>
+      </div>
+      <button
+          onClick={() => handleSwipe("left")}
+          className="px-6 py-3 bg-red-200 text-white rounded-full text-lg"
+        >
+          ❌
+        </button>
+    </div>
+  );
+}

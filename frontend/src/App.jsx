@@ -16,7 +16,8 @@ import RecruiterDashboard from "./pages/Recruiter/RecruiterDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthProvider from "./context/AuthProvider"; // ✅
 import AuthContext from "./context/AuthContext"; 
-
+import MyApplications from "./pages/JobSeeker/MyApplications";
+import SavedJobs from "./pages/JobSeeker/SavedJobs";
 export default function App() {
   
   return (
@@ -24,8 +25,7 @@ export default function App() {
     <Router>
       <div className="min-h-screen bg-gray-50">
          <Navbar />
-
-        <div className="pt-16">
+        <div>
           <Routes>
             <Route 
               path="/" 
@@ -102,6 +102,22 @@ export default function App() {
                   </ProtectedRoute>
               }
             />
+            <Route 
+              path="/MyApplications" 
+              element={
+                <ErrorBoundary componentName="MyApplications">
+                  <MyApplications />
+                </ErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/SavedJobs" 
+              element={
+                <ErrorBoundary componentName="SavedJobs">
+                  <SavedJobs />
+                </ErrorBoundary>
+              } 
+            />
 
             <Route
               path="/recruiter-dashboard"
@@ -115,6 +131,7 @@ export default function App() {
               }
             />
           </Routes>
+          
         </div>
       </div>
     </Router>
