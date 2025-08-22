@@ -10,27 +10,31 @@ export default function Login() {
   const { login } = useContext(AuthContext); // 👈 use AuthContext
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("http://localhost:5000/auth/login", {
-        email,
-        password,
-      });
+  e.preventDefault();
+  try {
+    const res = await axios.post("http://localhost:5000/auth/login", {
+      email,
+      password,
+    });
 
-      // save to context + localStorage
-      login(res.data.user);
+    // ✅ save token
+    localStorage.setItem("token", res.data.token);
 
-      // redirect based on role
-      if (res.data.user.role === "recruiter") {
-        navigate("/recruiter-dashboard");
-      } else {
-        navigate("/jobseeker-dashboard");
-      }
-    } catch (err) {
-      console.error("LOGIN failed:", err.response?.data || err.message);
-      alert("Login failed: " + (err.response?.data?.message || err.message));
+    // ✅ save user in context (your existing code)
+    login(res.data.user);
+
+    // ✅ redirect
+    if (res.data.user.role === "recruiter") {
+      navigate("/recruiter-dashboard");
+    } else {
+      navigate("/jobseeker-dashboard");
     }
-  };
+  } catch (err) {
+    console.error("LOGIN failed:", err.response?.data || err.message);
+    alert("Login failed: " + (err.response?.data?.message || err.message));
+  }
+};
+
 
   return (
     <div className="flex flex-col items-center mt-10">

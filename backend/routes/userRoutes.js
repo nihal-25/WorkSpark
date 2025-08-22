@@ -1,3 +1,4 @@
+//idk if this is used or not #need to check
 import express from "express";
 import User from "../models/User.js";   // ✅ relative import with .js extension
 const router = express.Router();

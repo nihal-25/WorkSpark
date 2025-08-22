@@ -1,0 +1,3 @@
+ npm install framer-motion //for swiping motion of job cards
+ npm install jsonwebtoken//backend , only with this can applications table be filled
+ npm install react-toastify// this is for notifications in the front-end

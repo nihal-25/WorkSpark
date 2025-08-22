@@ -1,3 +1,4 @@
+//we're not using this for now
 import { Link, useNavigate } from "react-router-dom";
 
 export default function NavbarLoggedIn() {
@@ -14,7 +15,9 @@ export default function NavbarLoggedIn() {
         <Link to="/">WorkSpark</Link>
       </div>
       <div className="flex gap-4">
-        <Link to="/jobseeker-dashboard">Jobseeker Dashboard</Link>
+        <Link to="/Saved-jobseeker">Saved</Link>
+        <Link to="/">Home</Link>
+        <Link to="/jobseeker-dashboard">Dashboard</Link>
         <Link to="/recruiter-dashboard">Recruiter Dashboard</Link>
         <button
           onClick={handleLogout}
