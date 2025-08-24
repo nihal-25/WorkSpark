@@ -1,3 +1,5 @@
+//node seed/seedJobs.js  RUN THIS IN THE TERMINAL
+//25 jobs present
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import Job from "../models/Job.js";
@@ -50,6 +52,186 @@ const jobs = [
     requirements: ["React Native", "TypeScript", "REST"],
     salary: "₹10–20 LPA",
   },
+  {
+    title: "Data Scientist",
+    company: "InsightAI",
+    location: "Bengaluru, India",
+    description:
+      "Analyze large datasets and build ML models to generate insights for clients.",
+    requirements: ["Python", "Machine Learning", "Pandas", "TensorFlow"],
+    salary: "₹20–35 LPA",
+  },
+  {
+    title: "Machine Learning Engineer",
+    company: "DeepVision",
+    location: "Remote",
+    description:
+      "Deploy ML models into production pipelines. Optimize for scale and performance.",
+    requirements: ["PyTorch", "ML Ops", "Docker", "Kubernetes"],
+    salary: "₹22–40 LPA",
+  },
+  {
+    title: "Product Manager",
+    company: "InnoTech",
+    location: "Mumbai, India",
+    description:
+      "Define product roadmap, collaborate with engineering and design teams to deliver features.",
+    requirements: ["Agile", "Scrum", "Communication", "Analytics"],
+    salary: "₹18–28 LPA",
+  },
+  {
+    title: "UI/UX Designer",
+    company: "DesignHub",
+    location: "Remote",
+    description:
+      "Create user-friendly designs, wireframes, and prototypes. Work closely with frontend teams.",
+    requirements: ["Figma", "Adobe XD", "User Research", "Prototyping"],
+    salary: "₹8–15 LPA",
+  },
+  {
+    title: "Cloud Architect",
+    company: "SkyScale",
+    location: "Hyderabad, India",
+    description:
+      "Design cloud-native applications and architectures on AWS/Azure/GCP.",
+    requirements: ["AWS", "Azure", "GCP", "Architecture"],
+    salary: "₹30–50 LPA",
+  },
+  {
+    title: "Cybersecurity Analyst",
+    company: "SecureNet",
+    location: "Delhi, India",
+    description:
+      "Monitor systems, perform security audits, and protect against cyber threats.",
+    requirements: ["Networking", "Firewalls", "Penetration Testing", "SIEM"],
+    salary: "₹12–20 LPA",
+  },
+  {
+    title: "Business Analyst",
+    company: "MarketEdge",
+    location: "Chennai, India",
+    description:
+      "Bridge the gap between business needs and tech teams. Gather requirements and analyze trends.",
+    requirements: ["SQL", "Excel", "Data Analysis", "Communication"],
+    salary: "₹8–14 LPA",
+  },
+  {
+    title: "QA Automation Engineer",
+    company: "TestFlow",
+    location: "Remote",
+    description:
+      "Write automated test scripts and improve product reliability.",
+    requirements: ["Selenium", "Cypress", "Java", "API Testing"],
+    salary: "₹10–18 LPA",
+  },
+  {
+    title: "Blockchain Developer",
+    company: "CryptoForge",
+    location: "Bengaluru, India",
+    description:
+      "Develop smart contracts and dApps on Ethereum and other blockchains.",
+    requirements: ["Solidity", "Web3.js", "Ethereum", "Smart Contracts"],
+    salary: "₹20–35 LPA",
+  },
+  {
+    title: "Game Developer (Unity)",
+    company: "PlaySphere",
+    location: "Remote",
+    description:
+      "Build 2D/3D games using Unity engine. Optimize performance across platforms.",
+    requirements: ["Unity", "C#", "Game Physics", "3D Modeling"],
+    salary: "₹12–22 LPA",
+  },
+  {
+    title: "Systems Engineer",
+    company: "TechBridge",
+    location: "Noida, India",
+    description:
+      "Maintain enterprise systems and provide technical support for infrastructure.",
+    requirements: ["Linux", "Windows Server", "Networking", "Automation"],
+    salary: "₹9–16 LPA",
+  },
+  {
+    title: "AI Research Intern",
+    company: "BrainWave Labs",
+    location: "Bengaluru, India",
+    description:
+      "Assist researchers in experimenting with cutting-edge AI models.",
+    requirements: ["Deep Learning", "Python", "PyTorch", "Research"],
+    salary: "₹6–10 LPA",
+  },
+  {
+    title: "Technical Writer",
+    company: "DocuMentor",
+    location: "Remote",
+    description:
+      "Prepare developer documentation, guides, and tutorials.",
+    requirements: ["Markdown", "API Docs", "Excellent Communication"],
+    salary: "₹7–12 LPA",
+  },
+  {
+    title: "AR/VR Developer",
+    company: "ImmersiTech",
+    location: "Pune, India",
+    description:
+      "Develop augmented and virtual reality apps using Unity/Unreal.",
+    requirements: ["Unity", "Unreal Engine", "C#", "3D Modeling"],
+    salary: "₹15–25 LPA",
+  },
+  {
+    title: "IT Support Specialist",
+    company: "HelpDesk Pro",
+    location: "Delhi, India",
+    description:
+      "Provide technical support for hardware, software, and networking issues.",
+    requirements: ["Troubleshooting", "Networking", "Windows", "Linux"],
+    salary: "₹4–8 LPA",
+  },
+  {
+    title: "Data Engineer",
+    company: "PipeData",
+    location: "Remote",
+    description:
+      "Build ETL pipelines and data warehouses for analytics.",
+    requirements: ["Python", "SQL", "Spark", "Airflow"],
+    salary: "₹14–24 LPA",
+  },
+  {
+    title: "Site Reliability Engineer (SRE)",
+    company: "ScaleOps",
+    location: "Bengaluru, India",
+    description:
+      "Ensure system reliability and build monitoring/alerting solutions.",
+    requirements: ["Kubernetes", "Prometheus", "Grafana", "CI/CD"],
+    salary: "₹20–32 LPA",
+  },
+  {
+    title: "Salesforce Developer",
+    company: "CRMWorks",
+    location: "Mumbai, India",
+    description:
+      "Develop and maintain Salesforce applications for enterprise clients.",
+    requirements: ["Salesforce", "Apex", "LWC", "CRM"],
+    salary: "₹12–20 LPA",
+  },
+  {
+    title: "Digital Marketing Specialist",
+    company: "AdBoost",
+    location: "Remote",
+    description:
+      "Manage campaigns across Google, Facebook, and LinkedIn Ads.",
+    requirements: ["SEO", "Google Ads", "Social Media Marketing", "Analytics"],
+    salary: "₹6–12 LPA",
+  },
+  {
+    title: "HR Manager",
+    company: "PeopleFirst",
+    location: "Bengaluru, India",
+    description:
+      "Oversee recruitment, employee relations, and HR operations.",
+    requirements: ["Recruitment", "Employee Engagement", "Payroll", "Compliance"],
+    salary: "₹10–18 LPA",
+  },
 ];
 
 (async () => {
@@ -63,4 +245,5 @@ const jobs = [
     console.error("Seed error:", err);
     process.exit(1);
   }
+
 })();
