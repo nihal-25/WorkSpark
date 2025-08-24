@@ -105,17 +105,21 @@ export default function App() {
             <Route 
               path="/MyApplications" 
               element={
+                <ProtectedRoute>
                 <ErrorBoundary componentName="MyApplications">
                   <MyApplications />
                 </ErrorBoundary>
+                </ProtectedRoute>
               } 
             />
             <Route 
               path="/SavedJobs" 
               element={
+                <ProtectedRoute>
                 <ErrorBoundary componentName="SavedJobs">
                   <SavedJobs />
                 </ErrorBoundary>
+                </ProtectedRoute>
               } 
             />
 

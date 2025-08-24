@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
 import API from "../api";
 
@@ -12,7 +11,6 @@ export default function JobSeekerDashboard() {
 
   // helper to extract a human-friendly reason
   const getErrorReason = (error) => {
-    // Network / no response
     if (!error.response) return "Network error — server unreachable.";
     const { status, data } = error.response;
     const serverMsg =
@@ -20,7 +18,6 @@ export default function JobSeekerDashboard() {
         ? data
         : data?.message || data?.error || data?.errors || "";
 
-    // Common friendly messages
     if (status === 401) return "Unauthorized — please log in again.";
     if (status === 403) return "Forbidden — you don’t have access.";
     if (status === 404) return "Job not found.";
@@ -30,110 +27,143 @@ export default function JobSeekerDashboard() {
 
     return serverMsg || `HTTP ${status}`;
   };
-const applyJob = async (jobId) => {
-  setSubmitting(true);
-  setErrorMsg("");
 
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("❌ No token found — please log in first");
+  const applyJob = async (jobId) => {
+    setSubmitting(true);
+    setErrorMsg("");
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("❌ No token found — please log in first");
+        return false;
+      }
+      await API.post(
+        "http://localhost:5000/applications",
+        { job: jobId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("✅ Application submitted!");
+      return true;
+    } catch (error) {
+      const reason = getErrorReason(error);
+      if (error.response?.status === 409) {
+        alert("⚠️ You’ve already applied to this job.");
+        return false;
+      }
+      alert(`❌ Failed to apply: ${reason}`);
+      return false;
+    } finally {
       setSubmitting(false);
-      return false;
     }
+  };
 
-    const res = await API.post(
-      "http://localhost:5000/applications",
-      { job: jobId },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    // ✅ Success
-    alert("✅ Application submitted for: " + job.title);
-    return true;
-  } catch (error) {
-    const reason = getErrorReason(error);
-
-    if (error.response?.status === 409) {
-      // Duplicate application
-      alert("⚠️ You’ve already applied to this job.");
+  const saveJob = async (jobId) => {
+    setSubmitting(true);
+    setErrorMsg("");
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("❌ No token found — please log in first");
+        return false;
+      }
+      await API.post(
+        "http://localhost:5000/savedJobs",
+        { job: jobId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("📌 Saved job!");
+      return true;
+    } catch (error) {
+      const reason = getErrorReason(error);
+      if (error.response?.status === 409) {
+        alert("⚠️ You’ve already saved this job.");
+        return false;
+      }
+      alert(`❌ Failed to save: ${reason}`);
       return false;
-    }
-
-    alert(`❌ Failed to apply: ${reason}`);
-    return false;
-  } finally {
-    setSubmitting(false);
-  }
-};
-
-const saveJob = async (jobId) => {
-  setSubmitting(true);
-  setErrorMsg("");
-
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("❌ No token found — please log in first");
+    } finally {
       setSubmitting(false);
-      return false;
     }
+  };
 
-    const res = await API.post(
-      "http://localhost:5000/savedJobs",
-      { job: jobId },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    // ✅ Success
-    alert("Saved job: " + job.title);
-    return true;
-  } catch (error) {
-    const reason = getErrorReason(error);
-
-    if (error.response?.status === 409) {
-      // Duplicate application
-      alert("⚠️ You’ve already Saved to this job.");
-      return false;
-    }
-
-    alert(`❌ Failed to save: ${reason}`);
-    return false;
-  } finally {
-    setSubmitting(false);
-  }
-};
-
-
+  // Fetch jobs and restore last seen job
   useEffect(() => {
-    API.get("/jobs")
-      .then((res) => setJobs(res.data))
-      .catch((err) => {
-        const reason = getErrorReason(err);
-        setErrorMsg(`Couldn’t load jobs: ${reason}`);
-        console.error("Fetch jobs failed:", err.response?.data || err.message);
-      })
-      .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const fetchJobs = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const [allRes, appliedRes, savedRes] = await Promise.all([
+          API.get("/jobs", { headers: { Authorization: `Bearer ${token}` } }),
+          API.get("/applications", { headers: { Authorization: `Bearer ${token}` } }),
+          API.get("/savedJobs", { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
+
+        const appliedIds = new Set(appliedRes.data.map((app) => app.job?._id || app.job));
+        const savedIds = new Set(savedRes.data.map((s) => s.job?._id || s.job));
+
+        const filtered = allRes.data.filter(
+          (job) => !appliedIds.has(job._id) && !savedIds.has(job._id)
+        );
+
+        setJobs(filtered);
+
+        // Restore last seen job by ID
+        const savedJobId = sessionStorage.getItem("currentJobId");
+        if (savedJobId) {
+          const restoredIndex = filtered.findIndex((j) => j._id === savedJobId);
+          if (restoredIndex !== -1) {
+            setCurrentIndex(restoredIndex);
+          } else {
+            setCurrentIndex(0);
+          }
+        } else {
+          setCurrentIndex(0);
+        }
+      } catch (err) {
+        console.error(err);
+        setErrorMsg("Could not load jobs");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
   }, []);
 
-  const handleSwipe = async (direction) => {
-  const job = jobs[currentIndex];
-  if (!job || submitting) return;
+  // Save current jobId instead of index
+  useEffect(() => {
+    if (jobs[currentIndex]) {
+      sessionStorage.setItem("currentJobId", jobs[currentIndex]._id);
+    }
+  }, [currentIndex, jobs]);
 
-  if (direction === "right") {
-    const success = await applyJob(job._id);
-    // move forward regardless of duplicate/success
-    setCurrentIndex((prev) => prev + 1);
-  } else if (direction === "left") {
-    setCurrentIndex((prev) => prev + 1);
-  } else if (direction === "back") {
-    setCurrentIndex((prev) => Math.max(prev - 1, 0));
-  }else if(direction=="save"){
-    const success=await saveJob(job._id);
-    setCurrentIndex((prev) => prev + 1);
-  }
-};
+  const handleSwipe = async (direction) => {
+    const job = jobs[currentIndex];
+    if (!job || submitting) return;
+
+    const removeJobAndFixIndex = (jobId) => {
+      setJobs((prev) => {
+        const updated = prev.filter((j) => j._id !== jobId);
+        if (currentIndex >= updated.length) {
+          setCurrentIndex(Math.max(updated.length - 1, 0));
+        }
+        return updated;
+      });
+    };
+
+    if (direction === "right") {
+      const success = await applyJob(job._id);
+      if (success) removeJobAndFixIndex(job._id);
+      else setCurrentIndex((prev) => prev + 1);
+    } else if (direction === "left") {
+      setCurrentIndex((prev) => prev + 1);
+    } else if (direction === "back") {
+      setCurrentIndex((prev) => Math.max(prev - 1, 0));
+    } else if (direction === "save") {
+      const success = await saveJob(job._id);
+      if (success) removeJobAndFixIndex(job._id);
+      else setCurrentIndex((prev) => prev + 1);
+    }
+  };
 
   if (loading) return <div className="p-6">Loading jobs…</div>;
 
@@ -151,16 +181,15 @@ const saveJob = async (jobId) => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
       <h2 className="mb-4 text-2xl font-bold">Swipe Jobs</h2>
 
-      {/* Error banner (shows backend reason) */}
       {errorMsg && (
-        <div className="mb-4 max-w-lg w-full rounded-lg bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
+        <div className="w-full max-w-lg px-4 py-3 mb-4 text-sm text-red-700 border border-red-200 rounded-lg bg-red-50">
           {errorMsg}
         </div>
       )}
 
       <div className="flex items-center justify-center gap-6">
         <button
-          className="px-6 py-3 bg-red-200 text-white rounded-full text-lg disabled:opacity-60"
+          className="px-6 py-3 text-lg text-white bg-red-200 rounded-full disabled:opacity-60"
           onClick={() => handleSwipe("left")}
           disabled={submitting}
         >
@@ -175,11 +204,8 @@ const saveJob = async (jobId) => {
           dragElastic={1}
           onDragEnd={(e, info) => {
             if (submitting) return;
-            if (info.offset.x > 150) {
-              handleSwipe("right");
-            } else if (info.offset.x < -150) {
-              handleSwipe("left");
-            }
+            if (info.offset.x > 150) handleSwipe("right");
+            else if (info.offset.x < -150) handleSwipe("left");
           }}
         >
           <div>
@@ -210,7 +236,7 @@ const saveJob = async (jobId) => {
         </motion.div>
 
         <button
-          className="px-6 py-3 bg-green-200 text-white rounded-full text-lg disabled:opacity-60"
+          className="px-6 py-3 text-lg text-white bg-green-200 rounded-full disabled:opacity-60"
           onClick={() => handleSwipe("right")}
           disabled={submitting}
         >
@@ -218,26 +244,23 @@ const saveJob = async (jobId) => {
         </button>
       </div>
 
-      <div className=" w-80 mt-6 flex  gap-4 items-center justify-center">
-  <button
-    className="px-6 py-3 bg-sky-200 text-black rounded-full text-lg disabled:opacity-60"
-    onClick={() => handleSwipe("back")}
-    disabled={submitting}
-  >
-    🔂 Go Back
-  </button>
+      <div className="flex items-center justify-center gap-4 mt-6 w-80">
+        <button
+          className="px-6 py-3 text-lg text-black rounded-full bg-sky-200 disabled:opacity-60"
+          onClick={() => handleSwipe("back")}
+          disabled={submitting}
+        >
+          🔂 Go Back
+        </button>
 
-  {/* Save for later button */}
-  <button
-    className="px-6 py-3 bg-yellow-200 text-black rounded-full text-lg disabled:opacity-100"
-    onClick={() => handleSwipe("save")}
-    disabled={submitting}
-  >
-    📌 Save
-  </button>
-</div>
-
-      
+        <button
+          className="px-6 py-3 text-lg text-black bg-yellow-200 rounded-full disabled:opacity-100"
+          onClick={() => handleSwipe("save")}
+          disabled={submitting}
+        >
+          📌 Save
+        </button>
+      </div>
     </div>
   );
 }
