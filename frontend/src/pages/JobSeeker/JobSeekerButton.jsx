@@ -2,16 +2,18 @@
 import { Link } from "react-router-dom";
 export default function JobseekerButton() {
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
-      <div className="flex-1 bg-gradient-to-b from-sky-300 to-white flex flex-col items-center justify-center text-white p-8">
-        <h1 className="text-4xl font-bold mb-4 text-slate-500">New to WorkSpark?</h1>
-        <p className="mb-6 max-w-md text-slate-500 text-center">
+    <div className="flex flex-col min-h-screen md:flex-row">
+      <div className="flex flex-col items-center justify-center flex-1 p-8 text-white bg-gradient-to-b from-sky-300 to-white">
+        <h1 className="mb-4 text-4xl font-bold text-slate-500">New to WorkSpark?</h1>
+        <p className="max-w-md mb-6 text-center text-slate-500">
           Discover jobs, swipe right to save, and match with recruiters instantly.
         </p>
-         <button className="px-4 py-2 bg-sky-500 text-white border border-sky-500 rounded-lg hover:bg-white hover:text-sky-500 transition">
+         <button className="px-4 py-2 text-white transition border rounded-lg bg-sky-500 border-sky-500 hover:bg-white hover:text-sky-500">
          <Link to ="/signup">   Sign up Today!</Link>
         </button>
       </div>
     </div>
   );
 }
+
+//hello deepali whats up
