@@ -4,9 +4,36 @@ import axios from "axios";
 export default function MyApplications() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [withdrawingId, setWithdrawingId] = useState(null);
 
+  // --- Withdraw an application ---
+  const withdrawApplication = async (appId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("❌ No token found — please log in first");
+      return;
+    }
+    setWithdrawingId(appId);
+    try {
+      await axios.delete(`http://localhost:5000/applications/${appId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // remove from state
+      setApplications((prev) => prev.filter((app) => app._id !== appId));
+      alert("🗑️ Application withdrawn successfully");
+    } catch (error) {
+      alert(
+        "❌ Failed to withdraw: " +
+          (error.response?.data?.message || error.message)
+      );
+    } finally {
+      setWithdrawingId(null);
+    }
+  };
+
+  // --- Fetch applications ---
   useEffect(() => {
-    const token = localStorage.getItem("token"); // get JWT token
+    const token = localStorage.getItem("token");
     axios
       .get("http://localhost:5000/applications", {
         headers: { Authorization: `Bearer ${token}` },
@@ -26,11 +53,14 @@ export default function MyApplications() {
       <div className="grid gap-4 md:grid-cols-2">
         {applications.map((app) => {
           const job = app.job; // populated job object
-
-          if (!job) return null; // in case job got deleted
+          if (!job) return null;
 
           return (
-            <div key={app._id} className="p-4 bg-white border rounded-xl">
+            <div
+              key={app._id}
+              className="p-4 bg-white border shadow-sm rounded-2xl flex flex-col justify-between"
+            >
+              {/* Header */}
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">{job.title}</h3>
@@ -41,11 +71,13 @@ export default function MyApplications() {
                 <span className="text-sm font-medium">{job.salary || "—"}</span>
               </div>
 
+              {/* Description */}
               <p className="mt-3 text-sm text-gray-700">
                 {job.description?.slice(0, 140)}
                 {job.description?.length > 140 ? "…" : ""}
               </p>
 
+              {/* Requirements */}
               {!!job.requirements?.length && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {job.requirements.slice(0, 5).map((req, idx) => (
@@ -59,6 +91,7 @@ export default function MyApplications() {
                 </div>
               )}
 
+              {/* Actions */}
               <div className="flex gap-3 mt-4">
                 <a
                   href={`/jobs/${job._id}`}
@@ -67,10 +100,11 @@ export default function MyApplications() {
                   View details
                 </a>
                 <button
-                  className="px-3 py-2 text-sm border rounded"
-                  disabled
+                  className="px-3 py-2 text-sm border rounded bg-red-100"
+                  onClick={() => withdrawApplication(app._id)}
+                  disabled={withdrawingId === app._id}
                 >
-                  Applied
+                  {withdrawingId === app._id ? "…" : "Withdraw ❌"}
                 </button>
               </div>
             </div>
@@ -79,7 +113,9 @@ export default function MyApplications() {
       </div>
 
       {!applications.length && (
-        <div className="text-gray-600">You haven’t applied to any jobs yet.</div>
+        <div className="text-gray-600">
+          You haven’t applied to any jobs yet.
+        </div>
       )}
     </div>
   );
