@@ -1,36 +1,134 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 export default function SavedJobs() {
-  const [applications, setApplications] = useState([]);
+  const [savedJobs, setSavedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submittingId, setSubmittingId] = useState(null); // per-row disable
 
+  // Read token once
+  const token = useMemo(() => localStorage.getItem("token"), []);
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  // --- Helper: safely get jobId from a saved row ---
+  const jobIdOf = (row) => {
+    if (!row || !row.job) return null;
+    return typeof row.job === "string" ? row.job : row.job._id || null;
+  };
+
+  // --- Helper: remove from state by jobId (null-safe) ---
+  const dropByJobId = (jobId) => {
+    setSavedJobs((prev) =>
+      prev.filter((row) => {
+        const id = jobIdOf(row);
+        // keep rows with no jobId or different jobId
+        return !id || id !== jobId;
+      })
+    );
+  };
+
+  // --- Apply for a job ---
+  const applyJob = async (jobId) => {
+    if (!token) {
+      alert("❌ No token found — please log in first");
+      return;
+    }
+    setSubmittingId(jobId);
+    try {
+      await axios.post(
+        "http://localhost:5000/applications",
+        { job: jobId },
+        { headers: authHeaders }
+      );
+
+      // Best-effort: also unsave on the server (ignore failures)
+      try {
+        await axios.delete(`http://localhost:5000/savedJobs/${jobId}`, {
+          headers: authHeaders,
+        });
+      } catch {}
+
+      dropByJobId(jobId);
+      alert("✅ Application submitted!");
+    } catch (error) {
+      if (error.response?.status === 409) {
+        alert("⚠️ You’ve already applied to this job.");
+        // optional: still remove from saved so user doesn’t see it again
+        dropByJobId(jobId);
+      } else {
+        alert(
+          "❌ Failed to apply: " +
+            (error.response?.data?.message || error.message)
+        );
+      }
+    } finally {
+      setSubmittingId(null);
+    }
+  };
+
+  // --- Remove from saved jobs ---
+  const removeJob = async (jobId) => {
+    if (!token) {
+      alert("❌ No token found — please log in first");
+      return;
+    }
+    setSubmittingId(jobId);
+    try {
+      await axios.delete(`http://localhost:5000/savedJobs/${jobId}`, {
+        headers: authHeaders,
+      });
+      alert("🗑️ Job removed from saved jobs");
+    } catch (error) {
+      alert(
+        "❌ Failed to remove: " +
+          (error.response?.data?.message || error.message)
+      );
+    } finally {
+      // Even if server fails, drop locally to avoid null crashes
+      dropByJobId(jobId);
+      setSubmittingId(null);
+    }
+  };
+
+  // --- Fetch saved jobs ---
   useEffect(() => {
-    const token = localStorage.getItem("token"); // get JWT token
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     axios
       .get("http://localhost:5000/savedJobs", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: authHeaders,
       })
-      .then((res) => setApplications(res.data))
-      .catch((err) => console.error("Fetch applications failed:", err))
+      .then((res) => {
+        // Remove any rows where job is null to prevent UI crashes
+        const rows = Array.isArray(res.data)
+          ? res.data.filter((r) => r?.job)
+          : [];
+        setSavedJobs(rows);
+      })
+      .catch((err) => console.error("Fetch saved jobs failed:", err))
       .finally(() => setLoading(false));
-  }, []);
+  }, [token]); // token memoized
 
-  if (loading) {
-    return <div className="p-6">Loading Jobs....</div>;
-  }
+  if (loading) return <div className="p-6">Loading Saved Jobs…</div>;
 
   return (
     <div className="max-w-5xl p-6 mx-auto">
       <h2 className="mb-4 text-2xl font-bold">My Saved Jobs</h2>
-      <div className="grid gap-4 md:grid-cols-2">
-        {applications.map((app) => {
-          const job = app.job; // populated job object
 
-          if (!job) return null; // in case job got deleted
+      <div className="grid gap-4 md:grid-cols-2">
+        {savedJobs.map((app) => {
+          const job = app.job; // populated job object (we filtered nulls)
+          const jobId = jobIdOf(app);
+          if (!job) return null;
 
           return (
-            <div key={app._id} className="p-4 bg-white border rounded-xl">
+            <div
+              key={app._id}
+              className="p-4 bg-white border shadow-sm rounded-2xl flex flex-col justify-between"
+            >
+              {/* Header */}
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">{job.title}</h3>
@@ -41,11 +139,13 @@ export default function SavedJobs() {
                 <span className="text-sm font-medium">{job.salary || "—"}</span>
               </div>
 
+              {/* Description */}
               <p className="mt-3 text-sm text-gray-700">
                 {job.description?.slice(0, 140)}
                 {job.description?.length > 140 ? "…" : ""}
               </p>
 
+              {/* Requirements */}
               {!!job.requirements?.length && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {job.requirements.slice(0, 5).map((req, idx) => (
@@ -59,6 +159,7 @@ export default function SavedJobs() {
                 </div>
               )}
 
+              {/* Actions (same layout you had) */}
               <div className="flex gap-3 mt-4">
                 <a
                   href={`/jobs/${job._id}`}
@@ -68,9 +169,17 @@ export default function SavedJobs() {
                 </a>
                 <button
                   className="px-3 py-2 text-sm border rounded"
-                  disabled
+                  onClick={() => applyJob(jobId)}
+                  disabled={submittingId === jobId}
                 >
-                  Applied
+                  {submittingId === jobId ? "…" : "Apply"}
+                </button>
+                <button
+                  className="px-3 py-2 text-sm border rounded"
+                  onClick={() => removeJob(jobId)}
+                  disabled={submittingId === jobId}
+                >
+                  Remove ❌
                 </button>
               </div>
             </div>
@@ -78,8 +187,8 @@ export default function SavedJobs() {
         })}
       </div>
 
-      {!applications.length && (
-        <div className="text-gray-600">You haven’t Saved  any jobs yet.</div>
+      {!savedJobs.length && (
+        <div className="text-gray-600">You haven’t saved any jobs yet.</div>
       )}
     </div>
   );

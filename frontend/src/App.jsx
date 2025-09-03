@@ -18,6 +18,7 @@ import AuthProvider from "./context/AuthProvider"; // ✅
 import AuthContext from "./context/AuthContext"; 
 import MyApplications from "./pages/JobSeeker/MyApplications";
 import SavedJobs from "./pages/JobSeeker/SavedJobs";
+import JobForm from "./pages/Recruiter/JobsForm";
 export default function App() {
   
   return (
@@ -131,9 +132,20 @@ export default function App() {
                     <RecruiterDashboard />
                   </ErrorBoundary>
                   </ProtectedRoute>
+
       
               }
             />
+            <Route 
+              path="/JobForm" 
+              element={
+                <ProtectedRoute>
+                <ErrorBoundary componentName="JobForm">
+                  <JobForm />
+                </ErrorBoundary>
+                </ProtectedRoute>
+              }
+              />
           </Routes>
           
         </div>

@@ -48,5 +48,29 @@ router.post("/", authMiddleware, async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+// @desc   Withdraw application
+// @route  DELETE /applications/:id
+router.delete("/:id", authMiddleware, async (req, res) => {
+  try {
+    const appId = req.params.id;
+
+    // Find the application
+    const application = await Application.findOne({
+      _id: appId,
+      jobseeker: req.user.id, // only allow deleting own applications
+    });
+
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    await application.deleteOne();
+
+    res.json({ message: "Application withdrawn successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 export default router;

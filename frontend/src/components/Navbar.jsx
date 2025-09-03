@@ -9,7 +9,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const handleLogout = () => {
     logout();
-    navigate("/login"); // 👈 redirect after logout
+    navigate("/") // 👈 redirect after logout
   };
 
   return (
@@ -25,13 +25,22 @@ export default function Navbar() {
         ) : (
           <>
           <Link to="/">Home</Link>
-          <Link to ="/SavedJobs">Saved</Link>
-          <Link to="/MyApplications">Applied Jobs</Link>
-            {user.role === "recruiter" ? (
+          
+          
+           {user.role === "recruiter" ? (
+            <div className="flex gap-4">
               <Link to="/recruiter-dashboard">Your Dashboard</Link>
+              <Link to ="/JobForm">Post Job</Link>
+             
+            </div>  
             ) : (
-              <Link to="/jobseeker-dashboard">JobCards</Link>
+              <div className="flex gap-4">
+                <Link to="/jobseeker-dashboard">JobCards</Link>
+                <Link to ="/SavedJobs">Saved</Link>
+                <Link to="/MyApplications">Applied Jobs</Link>
+              </div>
             )}
+
             
             <button
               onClick={handleLogout}
