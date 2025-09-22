@@ -1,11 +1,12 @@
 // middleware/authMiddleware.js
+//this is used to get login token from the header and verify it to do further operations like fetch user data
 import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   if (!authHeader) return res.status(401).json({ message: "No token provided" });
-
-  const token = authHeader.split(" ")[1]; // Expect "Bearer <token>"
+  //header needs Authorization along with token
+  const token = authHeader.split(" ")[1]; // Expects "Bearer <token>"
   if (!token) return res.status(401).json({ message: "No token provided" });
 
   try {

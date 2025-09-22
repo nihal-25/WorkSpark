@@ -35,6 +35,8 @@ export default function Navbar() {
             </div>  
             ) : (
               <div className="flex gap-4">
+                hello, {user.name} |
+                <Link to="/jobseeker-profile">My Profile</Link>
                 <Link to="/jobseeker-dashboard">JobCards</Link>
                 <Link to ="/SavedJobs">Saved</Link>
                 <Link to="/MyApplications">Applied Jobs</Link>
