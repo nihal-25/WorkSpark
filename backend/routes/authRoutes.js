@@ -48,7 +48,15 @@ router.post("/login", async (req, res) => {
       email: user.email,
       role: user.role,
       age: user.age,
-      lastSeenJob:user.lastSeenJob
+      lastSeenJob:user.lastSeenJob,
+      skills: user.skills,
+      resume: user.resume,
+      education: user.education,
+      experience: user.experience,  
+      preferredLocation: user.preferredLocation,
+      expectedSalary: user.expectedSalary,
+      availability: user.availability,
+      
     }
   });
 });

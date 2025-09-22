@@ -19,6 +19,7 @@ import AuthContext from "./context/AuthContext";
 import MyApplications from "./pages/JobSeeker/MyApplications";
 import SavedJobs from "./pages/JobSeeker/SavedJobs";
 import JobForm from "./pages/Recruiter/JobsForm";
+import ProfilePage from "./pages/JobSeeker/profile";
 export default function App() {
   
   return (
@@ -109,6 +110,16 @@ export default function App() {
                 <ProtectedRoute>
                 <ErrorBoundary componentName="MyApplications">
                   <MyApplications />
+                </ErrorBoundary>
+                </ProtectedRoute>
+              } 
+            />
+             <Route 
+              path="/jobseeker-profile" 
+              element={
+                <ProtectedRoute>
+                <ErrorBoundary componentName="ProfilePage">
+                  < ProfilePage/>
                 </ErrorBoundary>
                 </ProtectedRoute>
               } 
