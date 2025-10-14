@@ -1,5 +1,6 @@
 //flow : models-->routes-->server.js
 import express from "express";
+import path from "path";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
@@ -8,8 +9,15 @@ import authRoutes from "./routes/authRoutes.js"
 import jobRoutes from "./routes/jobRoutes.js";
 import applicationRoutes from "./routes/ApplicationRoutes.js";
 import SavedJobsRoutes from "./routes/SavedJobsRoutes.js";
+
+import { fileURLToPath } from "url";
+
+
+
 dotenv.config();
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Connect to DB
 connectDB();
@@ -23,6 +31,7 @@ app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/jobs", jobRoutes);
 app.use("/applications",applicationRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/savedJobs",SavedJobsRoutes)
 // Test route
 app.get("/", (req, res) => {

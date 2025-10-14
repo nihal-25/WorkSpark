@@ -13,7 +13,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex items-center justify-between px-6 py-4 text-sky-400 bg-white">
+    <nav className="flex items-center justify-between px-6 py-4 bg-white text-sky-400">
       <h1 className="text-xl font-bold">WorkSpark</h1>
       <div className="flex items-center gap-4">
         {!user ? (
@@ -24,13 +24,16 @@ export default function Navbar() {
           </>
         ) : (
           <>
-          <Link to="/">Home</Link>
+          
           
           
            {user.role === "recruiter" ? (
             <div className="flex gap-4">
               <Link to="/recruiter-dashboard">Your Dashboard</Link>
               <Link to ="/JobForm">Post Job</Link>
+              <Link to ="/saved-applicants">Saved Applicants</Link>
+              <Link to ="/accepted-applicants">Accepted Applicants</Link>
+              <Link to ="/manage-jobs">Manage Jobs</Link>
              
             </div>  
             ) : (
@@ -40,13 +43,14 @@ export default function Navbar() {
                 <Link to="/jobseeker-dashboard">JobCards</Link>
                 <Link to ="/SavedJobs">Saved</Link>
                 <Link to="/MyApplications">Applied Jobs</Link>
+                <Link to="/my-interviews">My Interviews</Link>
               </div>
             )}
 
             
             <button
               onClick={handleLogout}
-              className="px-3 py-1 bg-red-500 rounded hover:bg-red-600 text-white"
+              className="px-3 py-1 text-white bg-red-500 rounded hover:bg-red-600"
             >
               Logout
             </button>
