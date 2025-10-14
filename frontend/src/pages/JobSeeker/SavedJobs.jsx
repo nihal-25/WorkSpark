@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function SavedJobs() {
   const [savedJobs, setSavedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submittingId, setSubmittingId] = useState(null); // per-row disable
-
+  
+  const navigate = useNavigate();
+  
   // Read token once
   const token = useMemo(() => localStorage.getItem("token"), []);
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
@@ -126,7 +129,7 @@ export default function SavedJobs() {
           return (
             <div
               key={app._id}
-              className="p-4 bg-white border shadow-sm rounded-2xl flex flex-col justify-between"
+              className="flex flex-col justify-between p-4 bg-white border shadow-sm rounded-2xl"
             >
               {/* Header */}
               <div className="flex items-start justify-between">
@@ -161,12 +164,12 @@ export default function SavedJobs() {
 
               {/* Actions (same layout you had) */}
               <div className="flex gap-3 mt-4">
-                <a
-                  href={`/jobs/${job._id}`}
-                  className="px-3 py-2 text-sm text-white bg-sky-500 rounded"
-                >
-                  View details
-                </a>
+                <button
+              onClick={() => navigate(`/jobs/${job._id}`)}
+              className="px-3 py-1 mt-3 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
+            >
+              View Details
+            </button>
                 <button
                   className="px-3 py-2 text-sm border rounded"
                   onClick={() => applyJob(jobId)}

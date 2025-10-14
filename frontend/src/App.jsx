@@ -7,6 +7,7 @@ import RecruiterPage from "./pages/Recruiter/RecruiterPage";
 import ErrorBoundary from "./components/ErrorBoundary";
 import RecruiterButton from "./pages/Recruiter/RecruiterButton"
 import SignupRecruiter from "./pages/Recruiter/SignupRecruiter";
+import ManageJobs from "./pages/Recruiter/ManageJobs";
 import SignupJobSeeker from "./pages/JobSeeker/SignupJobSeeker"
 import SignupGlobal from "./components/SignUpGlobal";
 import JobseekerButton from "./pages/JobSeeker/JobSeekerButton"
@@ -20,6 +21,13 @@ import MyApplications from "./pages/JobSeeker/MyApplications";
 import SavedJobs from "./pages/JobSeeker/SavedJobs";
 import JobForm from "./pages/Recruiter/JobsForm";
 import ProfilePage from "./pages/JobSeeker/profile";
+import JobDetails from "./pages/JobSeeker/JobDetails";
+import SavedApplicants from "./pages/Recruiter/SavedApplicants";
+import AcceptedApplicants from "./pages/Recruiter/AcceptedApplicants";
+import MyInterviews from "./pages/JobSeeker/MyInterviews";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
+
 export default function App() {
   
   return (
@@ -61,6 +69,24 @@ export default function App() {
                 </ErrorBoundary>
               } 
             />
+            <Route 
+            path="/forgot-password" 
+            element={
+              <ErrorBoundary componentName="ForgotPassword">
+               <ForgotPassword />
+                </ErrorBoundary>
+               }
+                />
+                
+                 <Route 
+            path="/reset-password/:token" 
+            element={
+              <ErrorBoundary componentName="ResetPassword">
+               <ResetPassword />
+                </ErrorBoundary>
+               }
+                />
+            
             <Route 
               path="/recruiter_button" 
               element={
@@ -104,6 +130,16 @@ export default function App() {
                   </ProtectedRoute>
               }
             />
+            <Route
+  path="/jobs/:id"
+  element={
+    <ProtectedRoute>
+      <ErrorBoundary componentName="JobDetails">
+        <JobDetails />
+      </ErrorBoundary>
+    </ProtectedRoute>
+  }
+/>
             <Route 
               path="/MyApplications" 
               element={
@@ -114,6 +150,16 @@ export default function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route
+             path="/my-interviews"
+              element={
+              <ProtectedRoute>
+              <ErrorBoundary componentName="MyInterviews">
+              <MyInterviews />
+              </ErrorBoundary>
+            </ProtectedRoute>
+  }
+/>
              <Route 
               path="/jobseeker-profile" 
               element={
@@ -141,6 +187,39 @@ export default function App() {
                   <ProtectedRoute>
                   <ErrorBoundary componentName="RecruiterDashboard">
                     <RecruiterDashboard />
+                  </ErrorBoundary>
+                  </ProtectedRoute>
+
+      
+              }
+            />
+
+            <Route
+              path="/saved-applicants"
+              element={
+                  <ProtectedRoute>
+                  <ErrorBoundary componentName="SavedApplicants">
+                    <SavedApplicants />
+                  </ErrorBoundary>
+                  </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/accepted-applicants"
+              element={
+                  <ProtectedRoute>
+                  <ErrorBoundary componentName="AcceptedApplicants">
+                    <AcceptedApplicants />
+                  </ErrorBoundary>
+                  </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/manage-jobs"
+              element={
+                  <ProtectedRoute>
+                  <ErrorBoundary componentName="ManageJobs">
+                    <ManageJobs />
                   </ErrorBoundary>
                   </ProtectedRoute>
 

@@ -1,35 +1,42 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function MyApplications() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [withdrawingId, setWithdrawingId] = useState(null);
-
+  
+  const navigate = useNavigate();
   // --- Withdraw an application ---
   const withdrawApplication = async (appId) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("❌ No token found — please log in first");
-      return;
-    }
-    setWithdrawingId(appId);
-    try {
-      await axios.delete(`http://localhost:5000/applications/${appId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      // remove from state
-      setApplications((prev) => prev.filter((app) => app._id !== appId));
-      alert("🗑️ Application withdrawn successfully");
-    } catch (error) {
-      alert(
-        "❌ Failed to withdraw: " +
-          (error.response?.data?.message || error.message)
-      );
-    } finally {
-      setWithdrawingId(null);
-    }
-  };
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("❌ No token found — please log in first");
+    return;
+  }
+
+  setWithdrawingId(appId);
+  try {
+    await axios.patch(
+      `http://localhost:5000/applications/${appId}/status`,
+      { status: "rejected" },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    // ✅ Remove from frontend list
+    setApplications((prev) => prev.filter((app) => app._id !== appId));
+
+    alert("🚫 Application withdrawn");
+  } catch (error) {
+    alert(
+      "❌ Failed to withdraw: " +
+        (error.response?.data?.message || error.message)
+    );
+  } finally {
+    setWithdrawingId(null);
+  }
+};
 
   // --- Fetch applications ---
   useEffect(() => {
@@ -58,7 +65,7 @@ export default function MyApplications() {
           return (
             <div
               key={app._id}
-              className="p-4 bg-white border shadow-sm rounded-2xl flex flex-col justify-between"
+              className="flex flex-col justify-between p-4 bg-white border shadow-sm rounded-2xl"
             >
               {/* Header */}
               <div className="flex items-start justify-between">
@@ -93,14 +100,14 @@ export default function MyApplications() {
 
               {/* Actions */}
               <div className="flex gap-3 mt-4">
-                <a
-                  href={`/jobs/${job._id}`}
-                  className="px-3 py-2 text-sm text-white bg-sky-500 rounded"
-                >
-                  View details
-                </a>
                 <button
-                  className="px-3 py-2 text-sm border rounded bg-red-100"
+              onClick={() => navigate(`/jobs/${job._id}`)}
+              className="px-3 py-1 mt-3 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
+            >
+              View Details
+            </button>
+                <button
+                  className="px-3 py-2 text-sm bg-red-100 border rounded"
                   onClick={() => withdrawApplication(app._id)}
                   disabled={withdrawingId === app._id}
                 >
