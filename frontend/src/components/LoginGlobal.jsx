@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
+import API from "../api";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -9,27 +10,27 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("http://localhost:5000/auth/login", {
-        email,
-        password,
-      });
+const handleLogin = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await API.post("/auth/login", {
+      email,
+      password,
+    });
 
-      const { token, user } = res.data;
-      login(user, token);
+    const { token, user } = res.data;
+    login(user, token);
 
-      if (user.role === "recruiter") {
-        navigate("/recruiter-dashboard", { replace: true });
-      } else {
-        navigate("/jobseeker-dashboard", { replace: true });
-      }
-    } catch (err) {
-      console.error("LOGIN failed:", err.response?.data || err.message);
-      alert("Login failed: " + (err.response?.data?.message || err.message));
+    if (user.role === "recruiter") {
+      navigate("/recruiter-dashboard", { replace: true });
+    } else {
+      navigate("/jobseeker-dashboard", { replace: true });
     }
-  };
+  } catch (err) {
+    console.error("LOGIN failed:", err.response?.data || err.message);
+    alert("Login failed: " + (err.response?.data?.message || err.message));
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen pt-24 bg-gradient-to-b from-sky-400 via-sky-200 to-white">
