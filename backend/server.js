@@ -29,7 +29,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",           // local dev (Vite)
-      "https://workspark.vercel.app/",    // ✅ your deployed frontend (replace with exact URL)
+      "https://workspark.vercel.app",    // ✅ your deployed frontend (replace with exact URL)
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
