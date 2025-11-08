@@ -9,7 +9,7 @@ import RecruiterButton from "./pages/Recruiter/RecruiterButton"
 import SignupRecruiter from "./pages/Recruiter/SignupRecruiter";
 import ManageJobs from "./pages/Recruiter/ManageJobs";
 import SignupJobSeeker from "./pages/JobSeeker/SignupJobSeeker"
-import SignupGlobal from "./components/SignUpGlobal";
+import SignupGlobal from "./components/SignupGlobal";
 import JobseekerButton from "./pages/JobSeeker/JobSeekerButton"
 import Login from "./components/LoginGlobal";
 import JobseekerDashboard from "./pages/JobSeeker/jobSeekerDashboard";
