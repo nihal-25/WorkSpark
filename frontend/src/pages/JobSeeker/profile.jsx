@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import API from "../api";
+import API from "../api"; 
 import AuthContext from "../../context/AuthContext";
 
 export default function ProfilePage() {
@@ -15,7 +15,7 @@ export default function ProfilePage() {
   const [newSkill, setNewSkill] = useState("");
   const [resumeFile, setResumeFile] = useState(null);
 
-  // Fetch profile
+ 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -36,8 +36,6 @@ export default function ProfilePage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Ensure experience stays numeric
     if (name === "experience") {
       setFormData((prev) => ({ ...prev, experience: Number(value) }));
     } else {
@@ -62,14 +60,11 @@ export default function ProfilePage() {
     }));
   };
 
-  // Save profile
   const handleSave = async () => {
     try {
-      // 1️⃣ Update details
       const res = await API.put("/users/me", formData);
       setProfile(res.data);
 
-      // 2️⃣ Upload resume if selected
       if (resumeFile) {
         const fd = new FormData();
         fd.append("resume", resumeFile);
@@ -91,184 +86,183 @@ export default function ProfilePage() {
     }
   };
 
-  if (!profile) return <p>Loading...</p>;
+  if (!profile)
+    return (
+      <div className="flex justify-center pt-24 text-sky-600">
+        Loading profile…
+      </div>
+    );
 
   return (
-    <div className="max-w-md p-6 mx-auto mt-10 bg-white rounded shadow">
-      <h2 className="mb-4 text-xl font-bold">My Profile</h2>
+    <div className="flex justify-center min-h-screen pt-24 bg-gradient-to-b from-sky-200 via-white to-sky-100">
+      <div className="w-full max-w-md p-6 border shadow-lg bg-white/90 backdrop-blur-md border-sky-100 rounded-2xl">
+        <h2 className="mb-6 text-2xl font-extrabold text-center text-sky-700">
+          My Profile
+        </h2>
 
-      {editMode ? (
-        <div className="space-y-4">
-          {/* Name */}
-          <div>
-            <label className="block font-semibold">Name:</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block font-semibold">Email:</label>
-            <p className="p-2 bg-gray-100 rounded">{profile.email}</p>
-          </div>
-
-          {/* Role */}
-          <div>
-            <label className="block font-semibold">Role:</label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            >
-              <option value="recruiter">Recruiter</option>
-              <option value="jobseeker">Jobseeker</option>
-            </select>
-          </div>
-
-          {/* ✅ Experience (number input) */}
-          <div>
-            <label className="block font-semibold">Experience (in years):</label>
-            <input
-              type="number"
-              name="experience"
-              min="0"
-              value={formData.experience}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              placeholder="Enter your total years of experience"
-            />
-          </div>
-
-          {/* Skills */}
-          <div>
-            <label className="block font-semibold">Skills (max 5):</label>
-            <div className="flex gap-2 mb-2">
+        {editMode ? (
+          <div className="space-y-5">
+            {/* Name */}
+            <div>
+              <label className="block mb-1 font-medium text-sky-700">Name</label>
               <input
                 type="text"
-                value={newSkill}
-                onChange={(e) => setNewSkill(e.target.value)}
-                className="flex-1 p-2 border rounded"
-                placeholder="Enter a skill"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
               />
-              <button
-                type="button"
-                onClick={handleAddSkill}
-                className="px-3 py-1 text-white bg-blue-500 rounded"
-                disabled={formData.skills.length >= 5}
-              >
-                Add
-              </button>
             </div>
-            <ul className="flex flex-wrap gap-2">
-              {formData.skills.map((skill, index) => (
-                <li
-                  key={index}
-                  className="flex items-center gap-1 px-2 py-1 text-sm bg-gray-200 rounded"
-                >
-                  {skill}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSkill(index)}
-                    className="text-red-500"
-                  >
-                    ✕
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
 
-          {/* Resume Upload */}
-          <div>
-            <label className="block font-semibold">Resume (PDF only):</label>
-            <input
-              type="file"
-              accept="application/pdf"
-              onChange={(e) => setResumeFile(e.target.files[0])}
-              className="w-full p-2 border rounded"
-            />
-            {profile.resume && (
-              <p className="mt-2 text-sm text-gray-600">
-                Current Resume:{" "}
+            {/* Email */}
+            <div>
+              <label className="block mb-1 font-medium text-sky-700">Email</label>
+              <p className="px-3 py-2 border rounded-lg bg-sky-50 border-sky-100 text-slate-600">
+                {profile.email}
+              </p>
+            </div>
+
+            {/* Role */}
+            <div>
+              <label className="block mb-1 font-medium text-sky-700">Role</label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
+              >
+                <option value="recruiter">Recruiter</option>
+                <option value="jobseeker">Jobseeker</option>
+              </select>
+            </div>
+
+            {/* Experience */}
+            <div>
+              <label className="block mb-1 font-medium text-sky-700">
+                Experience (years)
+              </label>
+              <input
+                type="number"
+                name="experience"
+                min="0"
+                value={formData.experience}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
+              />
+            </div>
+
+            {/* Skills */}
+            <div>
+              <label className="block mb-2 font-medium text-sky-700">Skills (max 5)</label>
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={newSkill}
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  className="flex-1 px-3 py-2 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
+                  placeholder="Enter a skill"
+                />
+                <button
+                  onClick={handleAddSkill}
+                  disabled={formData.skills.length >= 5}
+                  className="px-4 py-2 text-white rounded-lg bg-sky-500 hover:bg-sky-600 disabled:opacity-60"
+                >
+                  Add
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {formData.skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="flex items-center gap-1 px-3 py-1 text-sm rounded-full bg-sky-100 text-sky-700"
+                  >
+                    {skill}
+                    <button
+                      onClick={() => handleRemoveSkill(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Resume Upload */}
+            <div>
+              <label className="block mb-1 font-medium text-sky-700">Resume (PDF)</label>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setResumeFile(e.target.files[0])}
+                className="w-full px-3 py-2 bg-white border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
+              />
+              {profile.resume && (
                 <a
                   href={`http://localhost:5000/${profile.resume}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 underline"
+                  className="inline-block mt-2 text-sm underline text-sky-600"
+                >
+                  View Current Resume
+                </a>
+              )}
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-between pt-2">
+              <button
+                onClick={handleSave}
+                className="px-5 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setEditMode(false)}
+                className="px-5 py-2 text-black rounded-lg bg-sky-200 hover:bg-sky-300"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3 text-slate-700">
+            <p><span className="font-semibold text-sky-700">Name:</span> {profile.name}</p>
+            <p><span className="font-semibold text-sky-700">Email:</span> {profile.email}</p>
+            <p><span className="font-semibold text-sky-700">Role:</span> {profile.role}</p>
+            <p>
+              <span className="font-semibold text-sky-700">Experience:</span> 
+              {profile.experience != null
+                ? ` ${profile.experience} ${profile.experience === 1 ? "year" : "years"}`
+                : " —"}
+            </p>
+            <p>
+              <span className="font-semibold text-sky-700">Skills:</span>{" "}
+              {profile.skills.length > 0 ? profile.skills.join(", ") : "—"}
+            </p>
+            <p>
+              <span className="font-semibold text-sky-700">Resume:</span>{" "}
+              {profile.resume ? (
+                <a
+                  href={`http://localhost:5000/${profile.resume}`}
+                  target="_blank"
+                  className="underline text-sky-600"
                 >
                   View / Download
                 </a>
-              </p>
-            )}
-          </div>
+              ) : "—"}
+            </p>
 
-          {/* Buttons */}
-          <div className="flex gap-2">
             <button
-              onClick={handleSave}
-              className="px-4 py-2 text-white bg-green-500 rounded"
+              onClick={() => setEditMode(true)}
+              className="w-full px-5 py-2 mt-4 text-white rounded-lg bg-sky-500 hover:bg-sky-600"
             >
-              Save
-            </button>
-            <button
-              onClick={() => setEditMode(false)}
-              className="px-4 py-2 bg-gray-400 rounded"
-            >
-              Cancel
+              Edit Profile
             </button>
           </div>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          <p>
-            <span className="font-semibold">Name:</span> {profile.name}
-          </p>
-          <p>
-            <span className="font-semibold">Email:</span> {profile.email}
-          </p>
-          <p>
-            <span className="font-semibold">Role:</span> {profile.role}
-          </p>
-          <p>
-            <span className="font-semibold">Experience:</span>{" "}
-            {profile.experience != null
-  ? `${profile.experience} ${profile.experience === 1 ? "year" : "years"}`
-  : "—"}
-          </p>
-          <p>
-            <span className="font-semibold">Skills:</span>{" "}
-            {profile.skills.length > 0 ? profile.skills.join(", ") : "—"}
-          </p>
-          <p>
-            <span className="font-semibold">Resume:</span>{" "}
-            {profile.resume ? (
-              <a
-                href={`http://localhost:5000/${profile.resume}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline"
-              >
-                View / Download
-              </a>
-            ) : (
-              "—"
-            )}
-          </p>
-
-          <button
-            onClick={() => setEditMode(true)}
-            className="px-4 py-2 text-white bg-blue-500 rounded"
-          >
-            Edit Profile
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

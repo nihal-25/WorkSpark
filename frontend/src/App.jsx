@@ -119,7 +119,7 @@ export default function App() {
                 </ErrorBoundary>
               } 
             />
-            {/* ✅ Protected Routes */}
+            {/* Protected Routes */}
             <Route
               path="/jobseeker-dashboard"
               element={

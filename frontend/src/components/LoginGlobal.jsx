@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useContext } from "react";
-import { useNavigate, Link } from "react-router-dom"; // ✅ added Link
+import { useNavigate, Link } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 
 export default function Login() {
@@ -18,11 +18,8 @@ export default function Login() {
       });
 
       const { token, user } = res.data;
-
-      // ✅ store user + token in context
       login(user, token);
 
-      // ✅ redirect based on role
       if (user.role === "recruiter") {
         navigate("/recruiter-dashboard", { replace: true });
       } else {
@@ -35,48 +32,60 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center mt-10">
-      <form onSubmit={handleLogin} className="flex flex-col w-64 gap-3">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="p-2 border rounded"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="p-2 border rounded"
-        />
-        <button
-          type="submit"
-          className="p-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-        >
-          Login
-        </button>
-      </form>
+    <div className="flex items-center justify-center min-h-screen pt-24 bg-gradient-to-b from-sky-400 via-sky-200 to-white">
+      {/* Login Card */}
+      <div className="w-full max-w-sm p-6 border shadow-lg rounded-2xl bg-white/90 backdrop-blur-md border-sky-100">
+        <h2 className="mb-5 text-2xl font-extrabold text-center text-sky-600">
+          Welcome Back 👋
+        </h2>
 
-      {/* ✅ Add Forgot Password link here */}
-      <div className="mt-3">
-        <Link
-          to="/forgot-password"
-          className="text-sm text-blue-600 hover:underline"
-        >
-          Forgot Password?
-        </Link>
-      </div>
+        <form onSubmit={handleLogin} className="flex flex-col gap-3">
+          <input
+            type="email"
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="p-2.5 border border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400 placeholder-slate-400"
+          />
 
-      {/* Optional: Link to signup page */}
-      <div className="mt-2 text-sm text-gray-600">
-        Don’t have an account?{" "}
-        <Link to="/signup" className="text-blue-600 hover:underline">
-          Sign up
-        </Link>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="p-2.5 border border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400 placeholder-slate-400"
+          />
+
+          <button
+            type="submit"
+            className="p-2.5 mt-2 font-semibold text-white rounded-lg shadow-md bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 transition-all"
+          >
+            Log In
+          </button>
+        </form>
+
+        {/* Forgot Password link */}
+        <div className="mt-4 text-center">
+          <Link
+            to="/forgot-password"
+            className="text-sm text-sky-600 hover:underline hover:text-sky-800"
+          >
+            Forgot Password?
+          </Link>
+        </div>
+
+        {/* Signup Redirect */}
+        <p className="mt-4 text-sm text-center text-slate-600">
+          Don’t have an account?{" "}
+          <Link
+            to="/signup"
+            className="font-semibold text-sky-600 hover:underline hover:text-sky-800"
+          >
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   );

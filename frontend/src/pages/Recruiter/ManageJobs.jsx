@@ -18,7 +18,6 @@ export default function ManageJobs() {
     minExperience: 0,
   });
 
-  // fetch recruiter jobs
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -27,21 +26,17 @@ export default function ManageJobs() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setJobs(res.data);
-      } catch (err) {
-        console.error(err);
-        alert("Failed to fetch jobs");
+      } catch {
+        alert("Failed to load jobs");
       } finally {
         setLoading(false);
       }
     };
-
     fetchJobs();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleChange = (e) =>
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const startEditing = (job) => {
     setEditingJobId(job._id);
@@ -59,32 +54,14 @@ export default function ManageJobs() {
     });
   };
 
-  const cancelEditing = () => {
-    setEditingJobId(null);
-    setFormData({
-      title: "",
-      company: "",
-      location: "",
-      description: "",
-      fullDescription: "",
-      requirements: "",
-      salary: "",
-      jobType: "",
-      workMode: "",
-      minExperience: 0,
-    });
-  };
+  const cancelEditing = () => setEditingJobId(null);
 
   const saveJob = async () => {
     try {
       const token = localStorage.getItem("token");
-
       const payload = {
         ...formData,
-        requirements: formData.requirements
-          .split(",")
-          .map((r) => r.trim())
-          .filter(Boolean),
+        requirements: formData.requirements.split(",").map((r) => r.trim()),
         minExperience: Number(formData.minExperience),
       };
 
@@ -92,174 +69,104 @@ export default function ManageJobs() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setJobs((prev) =>
-        prev.map((j) => (j._id === editingJobId ? res.data : j))
-      );
-      alert("Job updated successfully");
+      setJobs((prev) => prev.map((j) => (j._id === editingJobId ? res.data : j)));
       cancelEditing();
-    } catch (err) {
-      console.error(err);
+      alert("✅ Job updated successfully");
+    } catch {
       alert("Failed to update job");
     }
   };
 
   const deleteJob = async (jobId) => {
-    if (!window.confirm("Are you sure you want to delete this job?")) return;
+    if (!window.confirm("Delete this job?")) return;
     try {
       const token = localStorage.getItem("token");
       await API.delete(`/jobs/${jobId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       setJobs((prev) => prev.filter((j) => j._id !== jobId));
-      alert("Job deleted successfully");
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert("Failed to delete job");
     }
   };
 
-  if (loading) return <div className="p-6">Loading jobs…</div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen font-semibold text-sky-700">
+        Loading your jobs…
+      </div>
+    );
 
   return (
-    <div className="flex flex-col items-center mt-10">
-      <h2 className="mb-4 text-xl font-bold">Manage Your Jobs</h2>
+    <div className="min-h-screen px-6 pt-24 bg-gradient-to-b from-sky-200 via-white to-sky-100">
+      <h2 className="mb-8 text-3xl font-extrabold text-center text-sky-700">
+        Manage Your Job Posts
+      </h2>
 
       {jobs.length === 0 && (
-        <div className="text-gray-600">You have not posted any jobs yet.</div>
+        <p className="text-lg text-center text-gray-600">
+          You have not posted any jobs yet.
+        </p>
       )}
 
-      <div className="flex flex-col w-full max-w-2xl gap-6">
+      <div className="grid max-w-5xl gap-6 mx-auto">
         {jobs.map((job) => (
           <div
             key={job._id}
-            className="flex flex-col gap-2 p-4 bg-white rounded shadow"
+            className="p-6 transition border shadow-sm bg-white/90 backdrop-blur-md border-sky-100 rounded-2xl hover:shadow-lg"
           >
-            {editingJobId === job._id ? (
-              <>
-                <input
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder="Job Title"
-                  className="p-2 border rounded"
-                />
-                <input
-                  name="company"
-                  value={formData.company}
-                  onChange={handleChange}
-                  placeholder="Company"
-                  className="p-2 border rounded"
-                />
-                <input
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="Location"
-                  className="p-2 border rounded"
-                />
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Short Description"
-                  className="p-2 border rounded resize-none"
-                  maxLength={100}
-                />
-                <textarea
-                  name="fullDescription"
-                  value={formData.fullDescription}
-                  onChange={handleChange}
-                  placeholder="Full Description"
-                  className="p-2 border rounded"
-                />
-                <input
-                  name="requirements"
-                  value={formData.requirements}
-                  onChange={handleChange}
-                  placeholder="Requirements (comma-separated)"
-                  className="p-2 border rounded"
-                />
-                <input
-                  name="salary"
-                  value={formData.salary}
-                  onChange={handleChange}
-                  placeholder="Salary"
-                  className="p-2 border rounded"
-                />
-                <input
-                  name="jobType"
-                  value={formData.jobType}
-                  onChange={handleChange}
-                  placeholder="Job Type"
-                  className="p-2 border rounded"
-                />
-                <input
-                  name="workMode"
-                  value={formData.workMode}
-                  onChange={handleChange}
-                  placeholder="Work Mode"
-                  className="p-2 border rounded"
-                />
-                <input
-                  name="minExperience"
-                  type="number"
-                  value={formData.minExperience}
-                  onChange={handleChange}
-                  placeholder="Min Experience (years)"
-                  className="p-2 border rounded"
-                  min={0}
-                />
+            <h3 className="text-xl font-semibold text-sky-700">{job.title}</h3>
+            <p className="text-slate-600">{job.company} • {job.location}</p>
+            <p className="mt-2 text-sm text-slate-700">{job.description}</p>
 
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={saveJob}
-                    className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={cancelEditing}
-                    className="px-4 py-2 text-white bg-gray-500 rounded hover:bg-gray-600"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <h3 className="text-lg font-semibold">{job.title}</h3>
-                <p className="text-gray-600">
-                  {job.company} • {job.location}
-                </p>
-                <p>{job.description}</p>
-                <p className="text-sm text-gray-700">
-                  Requirements: {job.requirements.join(", ")}
-                </p>
-                <p className="text-sm font-medium">Salary: {job.salary}</p>
-                <p className="text-sm font-medium">
-                  Job Type: {job.jobType || "Not specified"} • Work Mode: {job.workMode || "Not specified"} • Min Experience: {job.minExperience || 0} years
-                </p>
+            <div className="mt-3 text-sm">
+              <p><strong className="text-sky-600">Requirements:</strong> {job.requirements.join(", ")}</p>
+              <p><strong className="text-sky-600">Salary:</strong> {job.salary}</p>
+              <p><strong className="text-sky-600">Type:</strong> {job.jobType} • {job.workMode}</p>
+              <p><strong className="text-sky-600">Experience:</strong> {job.minExperience} yrs</p>
+            </div>
 
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => startEditing(job)}
-                    className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteJob(job._id)}
-                    className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </>
-            )}
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => startEditing(job)}
+                className="px-4 py-2 text-white transition rounded-lg shadow bg-sky-500 hover:bg-sky-600"
+              >
+                Edit ✏️
+              </button>
+              <button
+                onClick={() => deleteJob(job._id)}
+                className="px-4 py-2 text-white transition bg-red-500 rounded-lg shadow hover:bg-red-600"
+              >
+                Delete 🗑
+              </button>
+            </div>
           </div>
         ))}
       </div>
+
+      {/* EDIT POPUP */}
+      {editingJobId && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-[450px] max-h-[85vh] overflow-y-auto p-6 bg-white rounded-2xl shadow-xl border border-sky-200">
+            <h3 className="mb-4 text-xl font-bold text-sky-700">Edit Job</h3>
+
+            <div className="grid gap-3">
+              {Object.keys(formData).map((key) => (
+                key === "fullDescription" ? (
+                  <textarea key={key} name={key} value={formData[key]} onChange={handleChange} className="p-3 border rounded-lg" rows={4}/>
+                ) : (
+                  <input key={key} name={key} value={formData[key]} onChange={handleChange} className="p-3 border rounded-lg" />
+                )
+              ))}
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={cancelEditing} className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">Cancel</button>
+              <button onClick={saveJob} className="px-4 py-2 text-white rounded-lg bg-sky-600 hover:bg-sky-700">Save ✅</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

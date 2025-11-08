@@ -8,7 +8,7 @@ export default function MyApplications() {
   const [withdrawingId, setWithdrawingId] = useState(null);
   
   const navigate = useNavigate();
-  // --- Withdraw an application ---
+  
   const withdrawApplication = async (appId) => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -24,7 +24,7 @@ export default function MyApplications() {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    // ✅ Remove from frontend list
+   
     setApplications((prev) => prev.filter((app) => app._id !== appId));
 
     alert("🚫 Application withdrawn");
@@ -38,7 +38,7 @@ export default function MyApplications() {
   }
 };
 
-  // --- Fetch applications ---
+ 
   useEffect(() => {
     const token = localStorage.getItem("token");
     axios
@@ -54,32 +54,47 @@ export default function MyApplications() {
     return <div className="p-6">Loading applications…</div>;
   }
 
-  return (
-    <div className="max-w-5xl p-6 mx-auto">
-      <h2 className="mb-4 text-2xl font-bold">My Applications</h2>
-      <div className="grid gap-4 md:grid-cols-2">
+return (
+  <div className="min-h-screen px-6 pt-24 bg-gradient-to-b from-sky-200 via-white to-sky-100">
+    <div className="max-w-5xl mx-auto">
+
+      <h2 className="mb-6 text-3xl font-extrabold text-center text-sky-700">
+        My Applications 📄
+      </h2>
+
+      {applications.length === 0 && (
+        <div className="text-lg text-center text-slate-600">
+          You haven’t applied to any jobs yet.
+        </div>
+      )}
+
+      <div className="grid gap-6 md:grid-cols-2">
         {applications.map((app) => {
-          const job = app.job; // populated job object
+          const job = app.job;
           if (!job) return null;
 
           return (
             <div
               key={app._id}
-              className="flex flex-col justify-between p-4 bg-white border shadow-sm rounded-2xl"
+              className="p-5 transition-all border shadow-md bg-white/90 border-sky-100 rounded-2xl backdrop-blur-md hover:shadow-xl"
             >
               {/* Header */}
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold">{job.title}</h3>
-                  <p className="text-sm text-gray-600">
+                  <h3 className="text-lg font-semibold text-sky-700">
+                    {job.title}
+                  </h3>
+                  <p className="text-sm text-slate-600">
                     {job.company} • {job.location}
                   </p>
                 </div>
-                <span className="text-sm font-medium">{job.salary || "—"}</span>
+                <span className="text-sm font-medium text-sky-700">
+                  {job.salary || "—"}
+                </span>
               </div>
 
               {/* Description */}
-              <p className="mt-3 text-sm text-gray-700">
+              <p className="mt-3 text-sm text-slate-700">
                 {job.description?.slice(0, 140)}
                 {job.description?.length > 140 ? "…" : ""}
               </p>
@@ -90,7 +105,7 @@ export default function MyApplications() {
                   {job.requirements.slice(0, 5).map((req, idx) => (
                     <span
                       key={idx}
-                      className="px-2 py-1 text-xs bg-gray-100 border rounded"
+                      className="px-3 py-1 text-xs rounded-full bg-sky-100 text-sky-700"
                     >
                       {req}
                     </span>
@@ -99,15 +114,16 @@ export default function MyApplications() {
               )}
 
               {/* Actions */}
-              <div className="flex gap-3 mt-4">
+              <div className="flex items-center gap-3 mt-5">
                 <button
-              onClick={() => navigate(`/jobs/${job._id}`)}
-              className="px-3 py-1 mt-3 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
-            >
-              View Details
-            </button>
+                  onClick={() => navigate(`/jobs/${job._id}`)}
+                  className="px-4 py-2 text-sm text-white transition rounded-lg bg-sky-500 hover:bg-sky-600"
+                >
+                  View
+                </button>
+
                 <button
-                  className="px-3 py-2 text-sm bg-red-100 border rounded"
+                  className="px-4 py-2 text-sm text-red-600 transition bg-red-100 rounded-lg hover:bg-red-200 disabled:opacity-60"
                   onClick={() => withdrawApplication(app._id)}
                   disabled={withdrawingId === app._id}
                 >
@@ -118,12 +134,8 @@ export default function MyApplications() {
           );
         })}
       </div>
-
-      {!applications.length && (
-        <div className="text-gray-600">
-          You haven’t applied to any jobs yet.
-        </div>
-      )}
     </div>
-  );
+  </div>
+);
+
 }

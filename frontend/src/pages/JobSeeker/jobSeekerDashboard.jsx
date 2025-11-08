@@ -1,39 +1,16 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import API from "../api";
 import { useNavigate } from "react-router-dom";
 
 const JOB_TYPES = [
-  "Software Developer",
-  "Web Developer",
-  "Frontend Developer",
-  "Backend Developer",
-  "Full Stack Developer",
-  "App Developer",
-  "Mobile Developer",
-  "UI/UX Designer",
-  "Data Scientist",
-  "Machine Learning Engineer",
-  "AI Engineer",
-  "DevOps Engineer",
-  "Cloud Architect",
-  "Cybersecurity Analyst",
-  "Database Administrator",
-  "Network Engineer",
-  "System Administrator",
-  "Marketing Specialist",
-  "Product Manager",
-  "Business Analyst",
-  "Graphic Designer",
-  "Game Developer",
-  "Content Writer",
-  "Video Editor",
-  "HR Manager",
-  "Sales Executive",
-  "Customer Support",
-  "Finance Analyst",
-  "Operations Manager",
-  "QA Tester",
+  "Software Developer", "Web Developer", "Frontend Developer", "Backend Developer",
+  "Full Stack Developer", "App Developer", "Mobile Developer", "UI/UX Designer",
+  "Data Scientist", "Machine Learning Engineer", "AI Engineer", "DevOps Engineer",
+  "Cloud Architect", "Cybersecurity Analyst", "Database Administrator", "Network Engineer",
+  "System Administrator", "Marketing Specialist", "Product Manager", "Business Analyst",
+  "Graphic Designer", "Game Developer", "Content Writer", "Video Editor", "HR Manager",
+  "Sales Executive", "Customer Support", "Finance Analyst", "Operations Manager", "QA Tester",
 ];
 
 const WORK_MODES = ["In Office", "Remote", "Hybrid"];
@@ -45,7 +22,7 @@ export default function JobSeekerDashboard() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [lastJob, setLastJob] = useState(null);
+  const [feedbackMsg, setFeedbackMsg] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [filters, setFilters] = useState({
     location: "",
@@ -54,24 +31,9 @@ export default function JobSeekerDashboard() {
     minExperience: "",
     requirements: "",
   });
-
+  const [lastJob, setLastJob] = useState(null);
+  const [direction, setDirection] = useState(0);
   const navigate = useNavigate();
-
-  const getErrorReason = (error) => {
-    if (!error.response) return "Network error — server unreachable.";
-    const { status, data } = error.response;
-    const serverMsg =
-      typeof data === "string"
-        ? data
-        : data?.message || data?.error || data?.errors || "";
-    if (status === 401) return "Unauthorized — please log in again.";
-    if (status === 403) return "Forbidden — you don’t have access.";
-    if (status === 404) return "Job not found.";
-    if (status === 409) return serverMsg || "You’ve already applied to this job.";
-    if (status === 422) return serverMsg || "Validation failed.";
-    if (status === 500) return "Server error — please try again.";
-    return serverMsg || `HTTP ${status}`;
-  };
 
   // Fetch unseen jobs
   useEffect(() => {
@@ -79,7 +41,6 @@ export default function JobSeekerDashboard() {
       setLoading(true);
       try {
         const token = localStorage.getItem("token");
-        console.log("hey");
         const res = await API.get("/jobs/unseen", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -103,41 +64,40 @@ export default function JobSeekerDashboard() {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.data?.experience ?? 0;
-    } catch (err) {
-      console.error("Failed to fetch latest experience:", err);
+    } catch {
       return 0;
     }
+  };
+
+  const markJobAsSeen = async (jobId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await API.post(`/jobs/${jobId}/seen`, {}, { headers: { Authorization: `Bearer ${token}` } });
+    } catch {}
   };
 
   const applyJob = async (job) => {
     if (!job?._id) return false;
     setSubmitting(true);
-    setErrorMsg("");
     try {
       const token = localStorage.getItem("token");
-      if (!token) return alert("❌ No token found — please log in first");
+      if (!token) return false;
 
       const latestExp = await fetchLatestExperience();
       if (latestExp < (job.minExperience || 0)) {
-        alert(
-          `❌ You are not eligible for this job.\nRequired: ${job.minExperience} years\nYour experience: ${latestExp} years`
-        );
+        setFeedbackMsg(`❌ Not eligible. Required: ${job.minExperience} years, Yours: ${latestExp}`);
+        setTimeout(() => setFeedbackMsg(""), 2000);
         return false;
       }
 
-      await API.post(
-        "/applications",
-        { job: job._id },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert("✅ Application submitted!");
+      await API.post("/applications", { job: job._id }, { headers: { Authorization: `Bearer ${token}` } });
+      setFeedbackMsg("✅ Applied!");
+      setTimeout(() => setFeedbackMsg(""), 1500);
       await markJobAsSeen(job._id);
       return true;
-    } catch (err) {
-      const reason = getErrorReason(err);
-      if (err.response?.status === 409)
-        alert("⚠️ You’ve already applied to this job.");
-      else alert(`❌ Failed to apply: ${reason}`);
+    } catch {
+      setFeedbackMsg("❌ Failed to apply");
+      setTimeout(() => setFeedbackMsg(""), 1500);
       return false;
     } finally {
       setSubmitting(false);
@@ -147,51 +107,33 @@ export default function JobSeekerDashboard() {
   const saveJob = async (job) => {
     if (!job?._id) return false;
     setSubmitting(true);
-    setErrorMsg("");
     try {
       const token = localStorage.getItem("token");
-      if (!token) return alert("❌ No token found — please log in first");
-      console.log("HI");
+      if (!token) return false;
+
       const latestExp = await fetchLatestExperience();
       if (latestExp < (job.minExperience || 0)) {
-        alert(
-          `❌ You are not eligible to save this job.\nRequired: ${job.minExperience} years\nYour experience: ${latestExp} years`
-        );
+        setFeedbackMsg(`❌ Not eligible to save. Required: ${job.minExperience} years, Yours: ${latestExp}`);
+        setTimeout(() => setFeedbackMsg(""), 2000);
         return false;
       }
 
-      await API.post(
-        "/savedJobs",
-        { job: job._id },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert("📌 Saved job!");
+      await API.post("/savedJobs", { job: job._id }, { headers: { Authorization: `Bearer ${token}` } });
+      setFeedbackMsg("📌 Saved!");
+      setTimeout(() => setFeedbackMsg(""), 1500);
       await markJobAsSeen(job._id);
       return true;
-    } catch (err) {
-      const reason = getErrorReason(err);
-      if (err.response?.status === 409)
-        alert("⚠️ You’ve already saved this job.");
-      else alert(`❌ Failed to save: ${reason}`);
+    } catch {
+      setFeedbackMsg("❌ Failed to save");
+      setTimeout(() => setFeedbackMsg(""), 1500);
       return false;
     } finally {
       setSubmitting(false);
     }
   };
 
-  const markJobAsSeen = async (jobId) => {
-    try {
-      const token = localStorage.getItem("token");
-      await API.post(`/jobs/${jobId}/seen`, {}, { headers: { Authorization: `Bearer ${token}` } });
-    } catch (err) {
-      console.error("Failed to mark job as seen:", err);
-    }
-  };
-
-  // Filter logic
   const applyFilters = () => {
     let filtered = [...jobs];
-
     if (filters.location)
       filtered = filtered.filter((job) =>
         job.location.toLowerCase().includes(filters.location.toLowerCase())
@@ -205,16 +147,13 @@ export default function JobSeekerDashboard() {
         (job) => job.minExperience <= Number(filters.minExperience)
       );
     if (filters.requirements) {
-      const reqs = filters.requirements
-        .split(",")
-        .map((r) => r.trim().toLowerCase());
+      const reqs = filters.requirements.split(",").map((r) => r.trim().toLowerCase());
       filtered = filtered.filter((job) =>
         reqs.every((r) =>
           job.requirements?.some((jReq) => jReq.toLowerCase().includes(r))
         )
       );
     }
-
     setFilteredJobs(filtered);
     setCurrentIndex(0);
     setShowFilter(false);
@@ -232,70 +171,90 @@ export default function JobSeekerDashboard() {
     setShowFilter(false);
   };
 
-  const handleSwipe = async (direction) => {
+  const handleSwipe = async (dir) => {
+    if (submitting || currentIndex >= filteredJobs.length) return;
     const job = filteredJobs[currentIndex];
-    if (!job || submitting) return;
+    setDirection(dir);
 
-    const removeJobAndFixIndex = (jobId) => {
-      setFilteredJobs((prev) => {
-        const updated = prev.filter((j) => j._id !== jobId);
-        if (currentIndex >= updated.length)
-          setCurrentIndex(Math.max(updated.length - 1, 0));
-        return updated;
-      });
-    };
-
-    if (direction === "right") {
+    if (dir === 1) {
       const success = await applyJob(job);
       if (success) {
         setLastJob(job);
-        removeJobAndFixIndex(job._id);
+        setTimeout(() => setCurrentIndex((i) => i + 1), 300);
       }
-    } else if (direction === "left") {
+    } else if (dir === -1) {
       await markJobAsSeen(job._id);
       setLastJob(job);
-      setCurrentIndex((prev) => prev + 1);
-    } else if (direction === "back") {
-      if (lastJob) {
-        setFilteredJobs((prev) => {
-          const updated = [...prev];
-          updated.splice(currentIndex, 0, lastJob);
-          return updated;
-        });
-        setLastJob(null);
-      }
-    } else if (direction === "save") {
-      const success = await saveJob(job);
-      if (success) {
-        setLastJob(job);
-        removeJobAndFixIndex(job._id);
-      }
+      setTimeout(() => setCurrentIndex((i) => i + 1), 300);
     }
   };
 
-  if (loading) return <div className="p-6">Loading jobs…</div>;
+  const handleSave = async () => {
+    const job = filteredJobs[currentIndex];
+    if (!job) return;
+    const success = await saveJob(job);
+    if (success) {
+      setLastJob(job);
+      setTimeout(() => setCurrentIndex((i) => i + 1), 300);
+    }
+  };
+
+  const handleGoBack = () => {
+    if (!lastJob) return;
+    setFilteredJobs((prev) => {
+      const updated = [...prev];
+      updated.splice(currentIndex, 0, lastJob);
+      return updated;
+    });
+    setLastJob(null);
+    setCurrentIndex((i) => Math.max(i - 1, 0));
+  };
+
+  const variants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 100 : -100,
+      opacity: 0,
+      scale: 0.9,
+    }),
+    center: { x: 0, opacity: 1, scale: 1, zIndex: 1 },
+    exit: (direction) => ({
+      x: direction > 0 ? 400 : -400,
+      rotate: direction > 0 ? 20 : -20,
+      opacity: 0,
+      zIndex: 0,
+      transition: { duration: 0.4 },
+    }),
+  };
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen font-semibold bg-gradient-to-b from-sky-300 via-white to-sky-100 text-sky-700">
+        Loading jobs…
+      </div>
+    );
+
   if (currentIndex >= filteredJobs.length)
-  return (
-    <div className="flex flex-col items-center justify-center h-screen gap-4">
-      <h2 className="text-xl font-bold text-gray-600">No more jobs 🎉</h2>
-      <button
-        className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-        onClick={() => window.location.reload()}
-      >
-        🔄 Refresh
-      </button>
-    </div>
-  );
+    return (
+      <div className="flex flex-col items-center justify-center h-screen gap-4 bg-gradient-to-b from-sky-200 via-white to-sky-100 text-sky-700">
+        <h2 className="text-xl font-bold">No more jobs 🎉</h2>
+        <button
+          className="px-6 py-2 text-white transition rounded-lg shadow-md bg-sky-500 hover:bg-sky-600"
+          onClick={() => window.location.reload()}
+        >
+          🔄 Refresh
+        </button>
+      </div>
+    );
 
   const job = filteredJobs[currentIndex];
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-gray-50">
+    <div className="relative flex flex-col items-center justify-center min-h-screen pt-24 overflow-hidden bg-gradient-to-b from-sky-200 via-white to-sky-100">
       {/* Header */}
-      <div className="flex items-center justify-between w-full max-w-3xl px-6 mt-4">
-        <h2 className="text-2xl font-bold">Swipe Jobs</h2>
+      <div className="flex items-center justify-between w-full max-w-3xl px-6 mb-6">
+        <h2 className="text-3xl font-extrabold text-sky-700">Swipe Jobs</h2>
         <button
-          className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+          className="px-5 py-2 font-medium text-white rounded-lg shadow-md bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700"
           onClick={() => setShowFilter(!showFilter)}
         >
           🔍 Filter
@@ -304,80 +263,61 @@ export default function JobSeekerDashboard() {
 
       {/* Filter Modal */}
       {showFilter && (
-        <div className="absolute z-10 p-6 bg-white border shadow-lg top-20 rounded-xl w-80">
-          <h3 className="mb-4 text-lg font-semibold">Filter Jobs</h3>
-          <div className="flex flex-col gap-3">
+        <div className="absolute z-10 p-6 border shadow-xl bg-white/90 backdrop-blur-md border-sky-100 top-28 rounded-2xl w-80">
+          <h3 className="mb-4 text-lg font-semibold text-sky-700">Filter Jobs</h3>
+          <div className="flex flex-col gap-3 text-sm">
             <input
               type="text"
               placeholder="Location"
               value={filters.location}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, location: e.target.value }))
-              }
-              className="px-3 py-2 text-sm border rounded"
+              onChange={(e) => setFilters((f) => ({ ...f, location: e.target.value }))}
+              className="px-3 py-2 border rounded outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
             />
-
             <select
               value={filters.jobType}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, jobType: e.target.value }))
-              }
-              className="px-3 py-2 text-sm border rounded"
+              onChange={(e) => setFilters((f) => ({ ...f, jobType: e.target.value }))}
+              className="px-3 py-2 border rounded outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
             >
               <option value="">All Job Types</option>
               {JOB_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
+                <option key={type}>{type}</option>
               ))}
             </select>
-
             <select
               value={filters.workMode}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, workMode: e.target.value }))
-              }
-              className="px-3 py-2 text-sm border rounded"
+              onChange={(e) => setFilters((f) => ({ ...f, workMode: e.target.value }))}
+              className="px-3 py-2 border rounded outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
             >
               <option value="">All Work Modes</option>
               {WORK_MODES.map((mode) => (
-                <option key={mode} value={mode}>
-                  {mode}
-                </option>
+                <option key={mode}>{mode}</option>
               ))}
             </select>
-
             <input
               type="number"
               placeholder="Min Experience (years)"
               value={filters.minExperience}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, minExperience: e.target.value }))
-              }
-              className="px-3 py-2 text-sm border rounded"
+              onChange={(e) => setFilters((f) => ({ ...f, minExperience: e.target.value }))}
+              className="px-3 py-2 border rounded outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
               min={0}
             />
-
             <input
               type="text"
               placeholder="Requirements (comma-separated)"
               value={filters.requirements}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, requirements: e.target.value }))
-              }
-              className="px-3 py-2 text-sm border rounded"
+              onChange={(e) => setFilters((f) => ({ ...f, requirements: e.target.value }))}
+              className="px-3 py-2 border rounded outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
             />
           </div>
-
           <div className="flex justify-between mt-4">
             <button
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              className="px-4 py-2 rounded-lg text-sky-700 bg-sky-100 hover:bg-sky-200"
               onClick={clearFilters}
             >
               Clear
             </button>
             <button
-              className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+              className="px-4 py-2 text-white rounded-lg bg-sky-500 hover:bg-sky-600"
               onClick={applyFilters}
             >
               Apply
@@ -386,105 +326,124 @@ export default function JobSeekerDashboard() {
         </div>
       )}
 
-      {errorMsg && (
-        <div className="w-full max-w-lg px-4 py-3 mb-4 text-sm text-red-700 border border-red-200 rounded-lg bg-red-50">
-          {errorMsg}
-        </div>
+      {/* Feedback */}
+      {feedbackMsg && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="absolute px-4 py-2 text-sm font-medium text-white rounded-lg shadow-lg top-16 bg-sky-600"
+        >
+          {feedbackMsg}
+        </motion.div>
       )}
 
-      {/* Swipe Area */}
-      <div className="flex items-center justify-center gap-6 mt-6">
+      {/* Swipe row (❌ card ✅) */}
+      <div className="flex items-center justify-center gap-6 mt-4">
         <button
-          className="px-6 py-3 text-lg text-white bg-red-200 rounded-full disabled:opacity-60"
-          onClick={() => handleSwipe("left")}
+          onClick={() => handleSwipe(-1)}
           disabled={submitting}
+          className="px-6 py-3 text-lg text-white bg-red-400 rounded-full shadow hover:bg-red-500 disabled:opacity-60"
         >
           ❌
         </button>
 
-        <motion.div
-          key={job._id}
-          className="relative w-80 h-[360px] bg-white shadow-xl rounded-2xl p-6 flex flex-col justify-between"
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={1}
-          onDragEnd={(e, info) => {
-            if (submitting) return;
-            if (info.offset.x > 150) handleSwipe("right");
-            else if (info.offset.x < -150) handleSwipe("left");
-          }}
-        >
-          <div>
-            <h3 className="text-xl font-semibold">{job.title}</h3>
-            <p className="text-gray-600">
-              {job.company} • {job.location}
-            </p>
-
-            <div className="mt-2 text-sm text-gray-700">
-              <p>
-                <strong>Job Type:</strong> {job.jobType || "Not specified"}
-              </p>
-              <p>
-                <strong>Work Mode:</strong> {job.workMode || "Not specified"}
-              </p>
-              <p>
-                <strong>Min Experience:</strong>{" "}
-                {job.minExperience ?? "—"} years
-              </p>
-            </div>
-
-            <span className="block mt-2 text-sm font-medium text-gray-800">
-              💰 {job.salary || "Not specified"}
-            </span>
-
-            <p className="mt-2 text-sm text-gray-700">
-              {job.description?.slice(0, 120)}
-              {job.description?.length > 120 ? "…" : ""}
-            </p>
-
-            <button
-              onClick={() => navigate(`/jobs/${job._id}`)}
-              className="px-3 py-1 mt-3 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
+        {/* Card */}
+        <div className="relative w-80 h-[380px]">
+          <AnimatePresence custom={direction}>
+            <motion.div
+              key={job._id}
+              custom={direction}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              variants={{
+                enter: (direction) => ({
+                  x: direction > 0 ? 100 : -100,
+                  opacity: 0,
+                  scale: 0.9,
+                }),
+                center: { x: 0, opacity: 1, scale: 1 },
+                exit: (direction) => ({
+                  x: direction > 0 ? 400 : -400,
+                  rotate: direction > 0 ? 20 : -20,
+                  opacity: 0,
+                  transition: { duration: 0.4 },
+                }),
+              }}
+              transition={{
+                x: { type: "spring", stiffness: 300, damping: 25 },
+                opacity: { duration: 0.2 },
+              }}
+              className="absolute top-0 left-0 flex flex-col justify-between w-full h-full p-6 bg-white border shadow-xl border-sky-100 rounded-2xl"
             >
-              View Full Description
-            </button>
-
-            {!!job.requirements?.length && (
-              <div className="flex flex-wrap gap-2 mt-3">
-                {job.requirements.slice(0, 3).map((req, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2 py-1 text-xs bg-gray-100 rounded"
-                  >
-                    {req}
-                  </span>
-                ))}
+              <div>
+                <h3 className="text-xl font-semibold text-sky-700">{job.title}</h3>
+                <p className="text-slate-600">
+                  {job.company} • {job.location}
+                </p>
+                <div className="mt-2 text-sm text-slate-700">
+                  <p>
+                    <strong>Job Type:</strong> {job.jobType || "Not specified"}
+                  </p>
+                  <p>
+                    <strong>Work Mode:</strong> {job.workMode || "Not specified"}
+                  </p>
+                  <p>
+                    <strong>Experience:</strong> {job.minExperience ?? "—"} years
+                  </p>
+                </div>
+                <span className="block mt-2 text-sm font-medium text-sky-700">
+                  💰 {job.salary || "Not specified"}
+                </span>
+                <p className="mt-2 text-sm text-slate-700">
+                  {job.description?.slice(0, 120)}
+                  {job.description?.length > 120 ? "…" : ""}
+                </p>
+                <button
+                  onClick={() => navigate(`/jobs/${job._id}`)}
+                  className="px-3 py-1 mt-3 text-sm text-white transition rounded bg-sky-500 hover:bg-sky-600"
+                >
+                  View Full Description
+                </button>
+                {!!job.requirements?.length && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {job.requirements.slice(0, 3).map((req, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 text-xs rounded bg-sky-100 text-sky-700"
+                      >
+                        {req}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </motion.div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
         <button
-          className="px-6 py-3 text-lg text-white bg-green-200 rounded-full disabled:opacity-60"
-          onClick={() => handleSwipe("right")}
+          onClick={() => handleSwipe(1)}
           disabled={submitting}
+          className="px-6 py-3 text-lg text-white bg-green-400 rounded-full shadow hover:bg-green-500 disabled:opacity-60"
         >
-          {submitting ? "…" : "✅"}
+          ✅
         </button>
       </div>
 
-      <div className="flex items-center justify-center gap-4 mt-6 w-80">
+      {/* Bottom Buttons */}
+      <div className="flex items-center justify-center gap-4 mt-8 w-80">
         <button
-          className="px-6 py-3 text-lg text-black rounded-full bg-sky-200 disabled:opacity-60"
-          onClick={() => handleSwipe("back")}
+          className="px-6 py-3 text-black transition rounded-full bg-sky-200 hover:bg-sky-300 disabled:opacity-60"
+          onClick={handleGoBack}
           disabled={!lastJob || submitting}
         >
           🔂 Go Back
         </button>
-
         <button
-          className="px-6 py-3 text-lg text-black bg-yellow-200 rounded-full disabled:opacity-100"
-          onClick={() => handleSwipe("save")}
+          className="px-6 py-3 text-black transition bg-yellow-200 rounded-full hover:bg-yellow-300 disabled:opacity-100"
+          onClick={handleSave}
           disabled={submitting}
         >
           📌 Save

@@ -18,7 +18,7 @@ export default function JobForm() {
   const [search, setSearch] = useState("");
   const [customJobType, setCustomJobType] = useState("");
 
-  // ✅ Example job types (expand as needed)
+  
   const jobTypes = [
     "Software Developer",
     "Web Developer",
@@ -117,17 +117,22 @@ export default function JobForm() {
   };
 
   return (
-    <div className="flex flex-col items-center mt-10">
-      <h2 className="mb-4 text-xl font-bold">Post a Job</h2>
+  <div className="flex justify-center min-h-screen pt-24 bg-gradient-to-b from-sky-200 via-white to-sky-100">
+    <div className="w-full max-w-md p-8 border shadow-xl bg-white/90 backdrop-blur-md border-sky-100 rounded-2xl">
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-80">
+      <h2 className="mb-6 text-3xl font-extrabold text-center text-sky-700">
+        Post a Job 📝
+      </h2>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
         <input
           type="text"
           name="title"
           placeholder="Job Title"
           value={formData.title}
           onChange={handleChange}
-          className="p-2 border rounded"
+          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
           required
         />
 
@@ -137,7 +142,7 @@ export default function JobForm() {
           placeholder="Company Name"
           value={formData.company}
           onChange={handleChange}
-          className="p-2 border rounded"
+          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
           required
         />
 
@@ -147,31 +152,33 @@ export default function JobForm() {
           placeholder="Location"
           value={formData.location}
           onChange={handleChange}
-          className="p-2 border rounded"
+          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
           required
         />
 
-        {/* Short 1–2 line description */}
-        <textarea
-          name="description"
-          placeholder="Short Description (max 100 characters)"
-          value={formData.description}
-          onChange={handleChange}
-          className="h-16 p-2 border rounded resize-none"
-          maxLength={100}
-          required
-        />
-        <div className="text-xs text-right text-gray-500">
-          {formData.description.length}/100
+        {/* Short Description */}
+        <div>
+          <textarea
+            name="description"
+            placeholder="Short Description (max 100 characters, 1–2 lines)"
+            value={formData.description}
+            onChange={handleChange}
+            className="h-16 p-3 border rounded-lg outline-none resize-none border-sky-200 focus:ring-2 focus:ring-sky-400"
+            maxLength={100}
+            required
+          />
+          <div className="text-xs text-right text-slate-500">
+            {formData.description.length}/100
+          </div>
         </div>
 
-        {/* Full description */}
+        {/* Full Description */}
         <textarea
           name="fullDescription"
           placeholder="Full Job Description"
           value={formData.fullDescription}
           onChange={handleChange}
-          className="h-32 p-2 border rounded"
+          className="h-32 p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
           required
         />
 
@@ -181,7 +188,7 @@ export default function JobForm() {
           placeholder="Requirements (comma-separated)"
           value={formData.requirements}
           onChange={handleChange}
-          className="p-2 border rounded"
+          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
         />
 
         <input
@@ -190,58 +197,54 @@ export default function JobForm() {
           placeholder="Salary Range"
           value={formData.salary}
           onChange={handleChange}
-          className="p-2 border rounded"
+          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
         />
 
-        {/* 🔹 Job Type with Search */}
+        {/* Job Type */}
         <div>
-          
           <select
             name="jobType"
             value={formData.jobType}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
             required
           >
             <option value="">Select Job Type</option>
             {filteredJobTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
+              <option key={type} value={type}>{type}</option>
             ))}
           </select>
 
-          {/* 🔹 Show custom input if "Other" selected */}
           {formData.jobType === "Other" && (
             <input
               type="text"
               placeholder="Enter custom job type"
               value={customJobType}
               onChange={(e) => setCustomJobType(e.target.value)}
-              className="w-full p-2 mt-2 border rounded"
+              className="p-3 mt-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
               required
             />
           )}
         </div>
 
-        {/* 🔹 Minimum Experience */}
+        {/* Experience */}
         <input
           type="number"
           name="minExperience"
-          placeholder="Minimum Experience (in years)"
+          placeholder="Minimum Experience (years)"
           value={formData.minExperience}
           onChange={handleChange}
           min="0"
-          className="p-2 border rounded"
+          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
           required
         />
 
-        {/* 🔹 Work Mode */}
+        {/* Work Mode */}
         <select
           name="workMode"
           value={formData.workMode}
           onChange={handleChange}
-          className="p-2 border rounded"
+          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
           required
         >
           <option value="In Office">In Office</option>
@@ -251,11 +254,13 @@ export default function JobForm() {
 
         <button
           type="submit"
-          className="p-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+          className="p-3 font-semibold text-white transition rounded-lg shadow-md bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700"
         >
-          Post Job
+          Post Job ✅
         </button>
       </form>
     </div>
-  );
+  </div>
+);
+
 }
