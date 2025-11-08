@@ -18,7 +18,7 @@ export default function RecruiterDashboard() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Keep only applicants with status "applied"
+        
         const jobsWithFilteredApplicants = res.data.map((job) => ({
           ...job,
           applicants: job.applicants.filter((a) => a.status === "applied"),
@@ -42,7 +42,7 @@ export default function RecruiterDashboard() {
   const selectedJob = jobs.find((job) => job._id === selectedJobId);
   const applicants = selectedJob?.applicants || [];
 
-  // Ensure currentIndex is always in bounds
+ 
   const currentApplicant =
     applicants.length > 0
       ? applicants[Math.min(currentIndex, applicants.length - 1)]
@@ -56,7 +56,7 @@ export default function RecruiterDashboard() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Remove applicant from UI if status is no longer "applied"
+      
       setJobs((prev) =>
         prev.map((job) =>
           job._id === selectedJobId
@@ -87,17 +87,21 @@ export default function RecruiterDashboard() {
   };
 
   return (
-    <div className="max-w-3xl p-6 mx-auto">
-      <h2 className="mb-4 text-2xl font-bold">Applicants for job:</h2>
+  <div className="min-h-screen px-6 pt-24 bg-gradient-to-b from-sky-200 via-white to-sky-100">
+    <div className="max-w-3xl mx-auto">
 
-      {/* Dropdown for jobs */}
+      <h2 className="mb-6 text-3xl font-extrabold text-center text-sky-700">
+        Applicants Review Panel 👥
+      </h2>
+
+      {/* Job Dropdown */}
       <select
         value={selectedJobId || ""}
         onChange={(e) => {
           setSelectedJobId(e.target.value);
           setCurrentIndex(0);
         }}
-        className="p-2 mb-6 border rounded"
+        className="w-full p-3 mb-6 transition border rounded-lg shadow-sm outline-none bg-white/90 backdrop-blur-md border-sky-200 focus:ring-2 focus:ring-sky-400"
       >
         {jobs.map((job) => (
           <option key={job._id} value={job._id}>
@@ -106,14 +110,14 @@ export default function RecruiterDashboard() {
         ))}
       </select>
 
-      {/* Swipeable applicants */}
-      <div className="relative flex items-center justify-center h-80">
+      {/* Applicant Swipe Area */}
+      <div className="relative flex items-center justify-center h-[380px]">
         <AnimatePresence>
           {currentApplicant ? (
             <motion.div
               key={currentApplicant._id}
-              className="absolute p-6 text-center bg-white border shadow-lg w-80 rounded-xl"
-              initial={{ opacity: 0, scale: 0.8 }}
+              className="absolute p-6 text-center border shadow-xl w-80 bg-white/95 backdrop-blur-md border-sky-100 rounded-2xl"
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{
                 x: exitDirection * 300,
@@ -121,16 +125,13 @@ export default function RecruiterDashboard() {
                 transition: { duration: 0.3 },
               }}
             >
-              <h3 className="text-lg font-semibold">
+              <h3 className="text-xl font-semibold text-sky-700">
                 {currentApplicant.jobseeker?.name}
               </h3>
-              <p className="text-gray-600">
-                {currentApplicant.jobseeker?.email}
-              </p>
+              <p className="text-slate-600">{currentApplicant.jobseeker?.email}</p>
 
-              {/* ✅ Experience display updated */}
-              <p className="mt-2">
-                <strong>Experience:</strong>{" "}
+              <p className="mt-2 text-sm text-slate-700">
+                <strong className="text-sky-600">Experience:</strong>{" "}
                 {typeof currentApplicant.jobseeker?.experience === "number"
                   ? currentApplicant.jobseeker.experience > 0
                     ? `${currentApplicant.jobseeker.experience} year${
@@ -140,52 +141,54 @@ export default function RecruiterDashboard() {
                   : "N/A"}
               </p>
 
-              <p>
-                <strong>Skills:</strong>{" "}
+              <p className="mt-1 text-sm text-slate-700">
+                <strong className="text-sky-600">Skills:</strong>{" "}
                 {(currentApplicant.jobseeker?.skills || []).join(", ") ||
                   "Not provided"}
               </p>
 
-              {/* View Resume Button */}
               {currentApplicant.jobseeker?.resume && (
-                <p className="mt-2">
-                  <a
-                    href={`http://localhost:5000/${currentApplicant.jobseeker.resume}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1 text-white bg-blue-600 rounded"
-                  >
-                    View Resume
-                  </a>
-                </p>
+                <a
+                  href={`http://localhost:5000/${currentApplicant.jobseeker.resume}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-4 py-2 mt-3 text-white transition rounded-lg shadow-sm bg-sky-500 hover:bg-sky-600"
+                >
+                  View Resume 📄
+                </a>
               )}
 
-              <div className="flex justify-around mt-4">
-                <button
-                  onClick={() => handleSwipe("left", currentApplicant._id)}
-                  className="px-4 py-2 text-white bg-red-500 rounded"
-                >
-                  Reject
-                </button>
-                <button
-                  onClick={() => handleSwipe("right", currentApplicant._id)}
-                  className="px-4 py-2 text-white bg-green-500 rounded"
-                >
-                  Accept
-                </button>
-                <button
-                  onClick={() => updateStatus(currentApplicant._id, "hold")}
-                  className="px-4 py-2 text-white bg-yellow-500 rounded"
-                >
-                  Hold
-                </button>
-              </div>
+              {/* Action Buttons */}
+             <div className="flex justify-between mt-4">
+  <button
+    onClick={() => handleSwipe("left", currentApplicant._id)}
+    className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition shadow-sm"
+  >
+    Reject ❌
+  </button>
+  <button
+    onClick={() => handleSwipe("right", currentApplicant._id)}
+    className="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 transition shadow-sm"
+  >
+    Accept ✅
+  </button>
+  <button
+    onClick={() => updateStatus(currentApplicant._id, "hold")}
+    className="px-3 py-1.5 bg-yellow-400 text-black rounded-md text-sm hover:bg-yellow-500 transition shadow-sm"
+  >
+    Hold ⏸
+  </button>
+</div>
             </motion.div>
           ) : (
-            <div className="text-gray-500">No more applicants</div>
+            <div className="text-lg font-medium text-slate-600">
+              🎉 No more applicants to review
+            </div>
           )}
         </AnimatePresence>
       </div>
     </div>
-  );
+  </div>
+);
+
 }

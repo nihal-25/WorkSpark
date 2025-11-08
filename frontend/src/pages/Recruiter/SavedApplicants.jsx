@@ -7,7 +7,7 @@ export default function SavedApplicants() {
   const [selectedJob, setSelectedJob] = useState("all");
   const token = localStorage.getItem("token");
 
-  // ✅ Fetch held applicants
+  // Fetch held applicants
   useEffect(() => {
     const fetchHeldApplicants = async () => {
       try {
@@ -43,7 +43,7 @@ export default function SavedApplicants() {
 
   if (loading) return <div className="p-6">Loading held applicants…</div>;
 
-  // Filter by selected job
+ 
   const filteredApplicants =
     selectedJob === "all"
       ? applicants
@@ -55,14 +55,18 @@ export default function SavedApplicants() {
   );
 
   return (
-    <div className="max-w-4xl p-6 mx-auto">
-      <h2 className="mb-4 text-2xl font-bold">Saved (Hold) Applicants</h2>
+  <div className="min-h-screen px-6 pt-24 bg-gradient-to-b from-sky-200 via-white to-sky-100">
+    <div className="max-w-4xl mx-auto">
+
+      <h2 className="mb-6 text-3xl font-extrabold text-center text-sky-700">
+        Saved (On Hold) Applicants ⏸️
+      </h2>
 
       {jobsList.length > 0 && (
         <select
           value={selectedJob}
           onChange={(e) => setSelectedJob(e.target.value)}
-          className="p-2 mb-6 border rounded"
+          className="w-full p-3 mb-6 transition border rounded-lg shadow-sm outline-none bg-white/90 backdrop-blur-md border-sky-200 focus:ring-2 focus:ring-sky-400"
         >
           <option value="all">All Jobs</option>
           {jobsList.map((job) => (
@@ -74,25 +78,27 @@ export default function SavedApplicants() {
       )}
 
       {filteredApplicants.length === 0 ? (
-        <p className="text-gray-500">No applicants on hold.</p>
+        <p className="text-lg text-center text-slate-600">
+          No applicants on hold.
+        </p>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           {filteredApplicants.map((app) => (
             <div
               key={app._id}
-              className="p-4 bg-white border rounded-lg shadow-sm"
+              className="p-6 transition border shadow-lg bg-white/90 backdrop-blur-md border-sky-100 rounded-2xl hover:shadow-2xl"
             >
-              <h3 className="text-lg font-semibold">
-                {app.jobseeker?.name || "Unknown"}
+              <h3 className="text-xl font-semibold text-sky-700">
+                {app.jobseeker?.name || "Unknown Applicant"}
               </h3>
-              <p className="text-gray-600">{app.jobseeker?.email}</p>
-              <p className="mt-2">
-                <strong>Job:</strong> {app.job.title} — {app.job.company}
+              <p className="text-slate-600">{app.jobseeker?.email}</p>
+
+              <p className="mt-3 text-sm text-slate-700">
+                <strong className="text-sky-600">Job:</strong> {app.job.title} — {app.job.company}
               </p>
 
-              {/* ✅ Updated Experience Display */}
-              <p>
-                <strong>Experience:</strong>{" "}
+              <p className="text-sm text-slate-700">
+                <strong className="text-sky-600">Experience:</strong>{" "}
                 {typeof app.jobseeker?.experience === "number"
                   ? app.jobseeker.experience > 0
                     ? `${app.jobseeker.experience} year${
@@ -102,35 +108,35 @@ export default function SavedApplicants() {
                   : "N/A"}
               </p>
 
-              <p>
-                <strong>Skills:</strong>{" "}
+              <p className="text-sm text-slate-700">
+                <strong className="text-sky-600">Skills:</strong>{" "}
                 {(app.jobseeker?.skills || []).join(", ") || "Not provided"}
               </p>
 
-              {/* View Resume Button */}
               {app.jobseeker?.resume && (
                 <a
                   href={`http://localhost:5000/${app.jobseeker.resume}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block px-3 py-1 mt-3 text-white bg-blue-600 rounded"
+                  className="inline-block px-4 py-2 mt-4 text-white transition rounded-lg shadow-sm bg-sky-500 hover:bg-sky-600"
                 >
-                  View Resume
+                  View Resume 📄
                 </a>
               )}
 
-              <div className="flex gap-3 mt-4">
+              <div className="flex justify-between mt-6">
                 <button
                   onClick={() => updateStatus(app._id, "accepted")}
-                  className="px-4 py-2 text-white bg-green-600 rounded"
+                  className="px-4 py-2 text-sm text-white transition bg-green-500 rounded-lg shadow-sm hover:bg-green-600"
                 >
-                  Accept
+                  Accept ✅
                 </button>
+
                 <button
                   onClick={() => updateStatus(app._id, "rejected")}
-                  className="px-4 py-2 text-white bg-red-500 rounded"
+                  className="px-4 py-2 text-sm text-white transition bg-red-500 rounded-lg shadow-sm hover:bg-red-600"
                 >
-                  Reject
+                  Reject ❌
                 </button>
               </div>
             </div>
@@ -138,5 +144,7 @@ export default function SavedApplicants() {
         </div>
       )}
     </div>
-  );
+  </div>
+);
+
 }

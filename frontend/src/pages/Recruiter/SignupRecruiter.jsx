@@ -21,7 +21,7 @@ export default function SignupRecruiter() {
     try {
       const res = await API.post("/auth/signup", formData);
       alert("Signup successful!");
-      console.log(res.data);  // you’ll see saved user or token
+      console.log(res.data);  
     } catch (err) {
   if (err.response) {
     // Backend responded with an error
@@ -41,21 +41,21 @@ export default function SignupRecruiter() {
 
   return (
      <div className="flex flex-col items-center mt-10">
-    <h2 className="text-xl font-bold mb-4">Recruiter Signup</h2>
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-64">
-      <input type="text" name="name" placeholder="Name" onChange={handleChange} className="border p-2 rounded"
+    <h2 className="mb-4 text-xl font-bold">Recruiter Signup</h2>
+    <form onSubmit={handleSubmit} className="flex flex-col w-64 gap-3">
+      <input type="text" name="name" placeholder="Name" onChange={handleChange} className="p-2 border rounded"
         />
-      <select name="role" onChange={handleChange} className="border p-2 rounded">
+      <select name="role" onChange={handleChange} className="p-2 border rounded">
         <option value="">Select Role</option>
         <option value="recruiter">Recruiter</option>
       </select>
-      <input type="number" name="age" placeholder="Age" onChange={handleChange} className="border p-2 rounded"
+      <input type="number" name="age" placeholder="Age" onChange={handleChange} className="p-2 border rounded"
         />
-      <input type="email" name="email" placeholder="Email" onChange={handleChange} className="border p-2 rounded"
+      <input type="email" name="email" placeholder="Email" onChange={handleChange} className="p-2 border rounded"
         />
-      <input type="password" name="password" placeholder="Password" onChange={handleChange} className="border p-2 rounded"
+      <input type="password" name="password" placeholder="Password" onChange={handleChange} className="p-2 border rounded"
         />
-      <button type="submit" className="border p-2 rounded">Signup</button>
+      <button type="submit" className="p-2 border rounded">Signup</button>
     </form>
     </div>
   );

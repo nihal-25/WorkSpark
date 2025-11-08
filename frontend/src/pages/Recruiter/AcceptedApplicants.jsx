@@ -65,7 +65,7 @@ export default function AcceptedApplicants() {
 
       alert("✅ Interview scheduled successfully!");
 
-      // ✅ Update the applicant's interview info in state (keep card visible)
+     
       setApplicants((prev) =>
         prev.map((a) =>
           a._id === selectedApplicant._id
@@ -94,14 +94,18 @@ export default function AcceptedApplicants() {
   const jobsList = Array.from(new Map(applicants.map((a) => [a.job._id, a.job])).values());
 
   return (
-    <div className="relative max-w-4xl p-6 mx-auto">
-      <h2 className="mb-4 text-2xl font-bold">Accepted Applicants</h2>
+  <div className="min-h-screen px-6 pt-24 bg-gradient-to-b from-sky-200 via-white to-sky-100">
+    <div className="max-w-5xl mx-auto">
+
+      <h2 className="mb-6 text-3xl font-extrabold text-center text-sky-700">
+        Accepted Applicants ✅
+      </h2>
 
       {jobsList.length > 0 && (
         <select
           value={selectedJob}
           onChange={(e) => setSelectedJob(e.target.value)}
-          className="p-2 mb-6 border rounded"
+          className="w-full p-3 mb-6 transition border rounded-lg shadow-sm outline-none bg-white/90 backdrop-blur-md border-sky-200 focus:ring-2 focus:ring-sky-400"
         >
           <option value="all">All Jobs</option>
           {jobsList.map((job) => (
@@ -113,23 +117,27 @@ export default function AcceptedApplicants() {
       )}
 
       {filteredApplicants.length === 0 ? (
-        <p className="text-gray-500">No accepted applicants.</p>
+        <p className="text-lg text-center text-slate-600">
+          No accepted applicants yet.
+        </p>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           {filteredApplicants.map((app) => (
             <div
               key={app._id}
-              className="p-4 bg-white border rounded-lg shadow-sm"
+              className="p-6 transition border shadow-md bg-white/90 backdrop-blur-md border-sky-100 rounded-2xl hover:shadow-xl"
             >
-              <h3 className="text-lg font-semibold">
-                {app.jobseeker?.name || "Unknown"}
+              <h3 className="text-xl font-semibold text-sky-700">
+                {app.jobseeker?.name || "Unnamed Applicant"}
               </h3>
-              <p className="text-gray-600">{app.jobseeker?.email}</p>
-              <p className="mt-2">
-                <strong>Job:</strong> {app.job.title} — {app.job.company}
+              <p className="text-slate-600">{app.jobseeker?.email}</p>
+
+              <p className="mt-3 text-sm text-slate-700">
+                <strong className="text-sky-600">Job:</strong> {app.job.title} — {app.job.company}
               </p>
-              <p>
-                <strong>Experience:</strong>{" "}
+
+              <p className="text-sm text-slate-700">
+                <strong className="text-sky-600">Experience:</strong>{" "}
                 {typeof app.jobseeker?.experience === "number"
                   ? app.jobseeker.experience > 0
                     ? `${app.jobseeker.experience} year${
@@ -138,9 +146,10 @@ export default function AcceptedApplicants() {
                     : "Fresher"
                   : "N/A"}
               </p>
-              <p>
-                <strong>Skills:</strong>{" "}
-                {(app.jobseeker?.skills || []).join(", ")}
+
+              <p className="text-sm text-slate-700">
+                <strong className="text-sky-600">Skills:</strong>{" "}
+                {(app.jobseeker?.skills || []).join(", ") || "Not provided"}
               </p>
 
               {app.jobseeker?.resume && (
@@ -148,31 +157,31 @@ export default function AcceptedApplicants() {
                   href={`http://localhost:5000/${app.jobseeker.resume}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block px-3 py-1 mt-3 text-white bg-blue-600 rounded"
+                  className="inline-block px-4 py-2 mt-4 text-white transition rounded-lg shadow-sm bg-sky-500 hover:bg-sky-600"
                 >
-                  View Resume
+                  View Resume 📄
                 </a>
               )}
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3 mt-4">
+              <div className="flex flex-wrap gap-3 mt-6">
                 <button
                   onClick={() => updateStatus(app._id, "hold")}
-                  className="px-4 py-2 text-white bg-yellow-500 rounded"
+                  className="px-3 py-1.5 bg-yellow-400 text-black rounded-md text-sm hover:bg-yellow-500 transition shadow-sm"
                 >
-                  Move to Hold
-                </button>
-                <button
-                  onClick={() => updateStatus(app._id, "rejected")}
-                  className="px-4 py-2 text-white bg-red-500 rounded"
-                >
-                  Reject
+                  Move to Hold ⏸
                 </button>
 
-                {/* 🆕 Schedule Interview / Already Scheduled */}
+                <button
+                  onClick={() => updateStatus(app._id, "rejected")}
+                  className="px-3 py-1.5 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition shadow-sm"
+                >
+                  Reject ❌
+                </button>
+
                 {app.interview?.status === "scheduled" ? (
-                  <span className="px-4 py-2 text-sm font-semibold text-green-700 bg-green-100 border border-green-300 rounded">
-                    ✅ Interview Scheduled
+                  <span className="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-100 border border-green-300 rounded-md">
+                    Scheduled ✅
                   </span>
                 ) : (
                   <button
@@ -180,16 +189,16 @@ export default function AcceptedApplicants() {
                       setSelectedApplicant(app);
                       setShowModal(true);
                     }}
-                    className="px-4 py-2 text-white bg-green-600 rounded"
+                    className="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 transition shadow-sm"
                   >
-                    Schedule Interview
+                    Schedule Interview 🗓
                   </button>
                 )}
               </div>
 
-              {/* 🗓 Show interview details if scheduled */}
+              {/* Display interview details */}
               {app.interview?.status === "scheduled" && (
-                <div className="mt-3 text-sm text-gray-700">
+                <div className="mt-3 text-sm text-slate-700">
                   <p>
                     <strong>Date:</strong>{" "}
                     {new Date(app.interview.date).toLocaleString()}
@@ -200,7 +209,7 @@ export default function AcceptedApplicants() {
                       href={app.interview.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 underline"
+                      className="underline text-sky-600"
                     >
                       Join Meeting
                     </a>
@@ -212,50 +221,50 @@ export default function AcceptedApplicants() {
         </div>
       )}
 
-      {/* 🆕 Schedule Interview Modal */}
+      {/* Modal */}
       {showModal && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="p-6 bg-white rounded-lg shadow-lg w-96">
-            <h3 className="mb-4 text-xl font-semibold">Schedule Interview</h3>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="p-6 bg-white shadow-xl rounded-2xl w-96">
+            <h3 className="mb-4 text-xl font-semibold text-sky-700">Schedule Interview</h3>
 
-            <label className="block mb-2 text-sm font-medium">Date & Time</label>
+            <label className="block mb-1 text-sm font-medium">Date & Time</label>
             <input
               type="datetime-local"
               value={interviewData.date}
-              onChange={(e) =>
-                setInterviewData((prev) => ({ ...prev, date: e.target.value }))
-              }
-              className="w-full p-2 mb-4 border rounded"
+              onChange={(e) => setInterviewData((prev) => ({ ...prev, date: e.target.value }))}
+              className="w-full p-2 mb-4 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
             />
 
-            <label className="block mb-2 text-sm font-medium">Meeting Link</label>
+            <label className="block mb-1 text-sm font-medium">Meeting Link</label>
             <input
               type="text"
-              placeholder="Google Meet / Zoom link"
+              placeholder="Google Meet / Zoom Link"
               value={interviewData.link}
-              onChange={(e) =>
-                setInterviewData((prev) => ({ ...prev, link: e.target.value }))
-              }
-              className="w-full p-2 mb-4 border rounded"
+              onChange={(e) => setInterviewData((prev) => ({ ...prev, link: e.target.value }))}
+              className="w-full p-2 mb-6 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
             />
 
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                className="px-4 py-2 transition bg-gray-300 rounded-lg hover:bg-gray-400"
               >
                 Cancel
               </button>
+
               <button
                 onClick={scheduleInterview}
-                className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+                className="px-4 py-2 text-white transition rounded-lg bg-sky-600 hover:bg-sky-700"
               >
-                Schedule
+                Schedule ✅
               </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
-  );
+  </div>
+);
+
 }
