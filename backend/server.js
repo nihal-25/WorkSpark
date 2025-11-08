@@ -24,7 +24,17 @@ connectDB();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",           // local dev (Vite)
+      "https://workspark.vercel.app/",    // ✅ your deployed frontend (replace with exact URL)
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true,
+  })
+);
 
 // Routes
 app.use("/users", userRoutes);
