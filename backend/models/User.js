@@ -1,5 +1,3 @@
-import mongoose from "mongoose";
-
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -8,13 +6,14 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
 
+    isFirstLogin: { type: Boolean, default: true },  // ✅ NEW FIELD
+
     lastSeenJob: { type: mongoose.Schema.Types.ObjectId, ref: "Job", default: null },
 
-    skills: { type: [String], default: [] }, // list of skills
-    resume: { type: String, default: "" },   // resume file path
-    education: { type: String, default: "" }, // degree/university info
+    skills: { type: [String], default: [] },
+    resume: { type: String, default: "" },
+    education: { type: String, default: "" },
 
-    // ✅ Changed from String → Number
     experience: {
       type: Number,
       default: 0,
@@ -36,6 +35,3 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-const User = mongoose.model("User", userSchema);
-export default User;
