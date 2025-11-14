@@ -13,19 +13,26 @@ export default function Login() {
 const handleLogin = async (e) => {
   e.preventDefault();
   try {
-    const res = await API.post("/auth/login", {
-      email,
-      password,
-    });
+    const res = await API.post("/auth/login", { email, password });
 
     const { token, user } = res.data;
     login(user, token);
 
+    // 👇 FIRST LOGIN REDIRECT LOGIC
     if (user.role === "recruiter") {
-      navigate("/recruiter-dashboard", { replace: true });
+      if (user.isFirstLogin) {
+        navigate("/JobForm", { replace: true });        // recruiter first login
+      } else {
+        navigate("/recruiter-dashboard", { replace: true });
+      }
     } else {
-      navigate("/jobseeker-dashboard", { replace: true });
+      if (user.isFirstLogin) {
+        navigate("/jobseeker-profile", { replace: true });      // jobseeker first login
+      } else {
+        navigate("/jobseeker-dashboard", { replace: true });
+      }
     }
+
   } catch (err) {
     console.error("LOGIN failed:", err.response?.data || err.message);
     alert("Login failed: " + (err.response?.data?.message || err.message));

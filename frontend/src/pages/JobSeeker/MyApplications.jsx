@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../api";
 import { useNavigate } from "react-router-dom";
 
 export default function MyApplications() {
@@ -18,8 +18,7 @@ export default function MyApplications() {
 
   setWithdrawingId(appId);
   try {
-    await axios.patch(
-      `http://localhost:5000/applications/${appId}/status`,
+   await API.patch(`/applications/${appId}/status`,
       { status: "rejected" },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -41,10 +40,7 @@ export default function MyApplications() {
  
   useEffect(() => {
     const token = localStorage.getItem("token");
-    axios
-      .get("http://localhost:5000/applications", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    API.get("/applications")
       .then((res) => setApplications(res.data))
       .catch((err) => console.error("Fetch applications failed:", err))
       .finally(() => setLoading(false));

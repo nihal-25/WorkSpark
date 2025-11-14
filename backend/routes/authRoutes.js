@@ -63,23 +63,21 @@ router.post("/login", async (req, res) => {
 
     let isMatch = false;
 
-    // ✅ Check if password is hashed (starts with bcrypt hash pattern)
+    // Check if password is bcrypt hashed
     const isHashed = user.password.startsWith("$2b$") || user.password.startsWith("$2a$");
 
     if (isHashed) {
-      // Compare with bcrypt
       isMatch = await bcrypt.compare(password, user.password);
     } else {
-      // Direct string comparison
       isMatch = password === user.password;
     }
 
     if (!isMatch) {
-      console.warn("⚠️ Login failed: invalid password for:", email);
+      console.warn("⚠️ Login failed: invalid password:", email);
       return res.status(400).json({ message: "Invalid password" });
     }
 
-    // ✅ Generate JWT token
+    // Generate JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
@@ -88,6 +86,20 @@ router.post("/login", async (req, res) => {
 
     console.log("✅ Login successful for:", user.email);
 
+    // ---------------------------------------------------------
+    // 🔥 CHECK FIRST LOGIN
+    // ---------------------------------------------------------
+    const isFirstLogin = user.isFirstLogin;
+
+    if (isFirstLogin) {
+      user.isFirstLogin = false;  // set to false after first login
+      await user.save();
+      console.log("🚀 First login detected, updated isFirstLogin = false");
+    }
+
+    // ---------------------------------------------------------
+    // SEND RESPONSE
+    // ---------------------------------------------------------
     res.json({
       message: "Login successful",
       token,
@@ -105,14 +117,17 @@ router.post("/login", async (req, res) => {
         preferredLocation: user.preferredLocation,
         expectedSalary: user.expectedSalary,
         availability: user.availability,
+
+        // 👇 NEW FIELD SENT TO FRONTEND
+        isFirstLogin: isFirstLogin,
       },
     });
+
   } catch (error) {
     console.error("❌ Login error:", error);
     res.status(500).json({ message: error.message });
   }
 });
-
 /* ================================================================
    🟢 LAST SEEN JOB
 ================================================================ */

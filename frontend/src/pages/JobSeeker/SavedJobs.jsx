@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API from "../api"; // ✅ use same API instance
 
 export default function SavedJobs() {
   const [savedJobs, setSavedJobs] = useState([]);
@@ -10,7 +10,6 @@ export default function SavedJobs() {
   const navigate = useNavigate();
 
   const token = useMemo(() => localStorage.getItem("token"), []);
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   const jobIdOf = (row) => {
     if (!row || !row.job) return null;
@@ -18,32 +17,24 @@ export default function SavedJobs() {
   };
 
   const dropByJobId = (jobId) => {
-    setSavedJobs((prev) =>
-      prev.filter((row) => jobIdOf(row) !== jobId)
-    );
+    setSavedJobs((prev) => prev.filter((row) => jobIdOf(row) !== jobId));
   };
 
   const applyJob = async (jobId) => {
     if (!token) return alert("❌ Please log in first");
     setSubmittingId(jobId);
     try {
-      await axios.post(
-        "http://localhost:5000/applications",
-        { job: jobId },
-        { headers: authHeaders }
-      );
+      // ✅ Apply job
+      await API.post("/applications", { job: jobId });
 
-      try {
-        await axios.delete(`http://localhost:5000/savedJobs/${jobId}`, {
-          headers: authHeaders,
-        });
-      } catch {}
+      // ✅ Remove from saved list
+      await API.delete(`/savedJobs/${jobId}`);
 
       dropByJobId(jobId);
       alert("✅ Application submitted!");
     } catch (error) {
       if (error.response?.status === 409) {
-        alert("⚠️ Already applied");
+        alert("⚠️ You already applied for this job");
         dropByJobId(jobId);
       } else {
         alert("❌ Failed: " + (error.response?.data?.message || error.message));
@@ -57,12 +48,9 @@ export default function SavedJobs() {
     if (!token) return alert("❌ Please log in first");
     setSubmittingId(jobId);
     try {
-      await axios.delete(`http://localhost:5000/savedJobs/${jobId}`, {
-        headers: authHeaders,
-      });
-      alert("🗑️ Removed");
-    } catch {}
-    finally {
+      await API.delete(`/savedJobs/${jobId}`);
+      alert("🗑️ Removed from Saved Jobs");
+    } finally {
       dropByJobId(jobId);
       setSubmittingId(null);
     }
@@ -70,8 +58,8 @@ export default function SavedJobs() {
 
   useEffect(() => {
     if (!token) return setLoading(false);
-    axios
-      .get("http://localhost:5000/savedJobs", { headers: authHeaders })
+
+    API.get("/savedJobs")
       .then((res) => {
         const rows = Array.isArray(res.data)
           ? res.data.filter((r) => r?.job)
@@ -112,7 +100,6 @@ export default function SavedJobs() {
                 key={app._id}
                 className="p-5 transition-all border shadow-md bg-white/90 border-sky-100 rounded-2xl backdrop-blur-md hover:shadow-xl"
               >
-                {/* Header */}
                 <div className="flex justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-sky-700">
@@ -127,13 +114,11 @@ export default function SavedJobs() {
                   </span>
                 </div>
 
-                {/* Description */}
                 <p className="mt-3 text-sm text-slate-700">
                   {job.description?.slice(0, 140)}
                   {job.description?.length > 140 ? "…" : ""}
                 </p>
 
-                {/* Requirements */}
                 {!!job.requirements?.length && (
                   <div className="flex flex-wrap gap-2 mt-3">
                     {job.requirements.slice(0, 5).map((req, idx) => (
@@ -147,7 +132,6 @@ export default function SavedJobs() {
                   </div>
                 )}
 
-                {/* Actions */}
                 <div className="flex items-center gap-3 mt-5">
                   <button
                     onClick={() => navigate(`/jobs/${job._id}`)}

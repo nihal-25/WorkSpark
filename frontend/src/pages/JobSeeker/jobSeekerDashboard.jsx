@@ -171,44 +171,46 @@ export default function JobSeekerDashboard() {
     setShowFilter(false);
   };
 
-  const handleSwipe = async (dir) => {
-    if (submitting || currentIndex >= filteredJobs.length) return;
-    const job = filteredJobs[currentIndex];
-    setDirection(dir);
+ const handleSwipe = async (dir) => {
+  if (submitting || currentIndex >= filteredJobs.length) return;
+  const job = filteredJobs[currentIndex];
+  setDirection(dir);
 
-    if (dir === 1) {
-      const success = await applyJob(job);
-      if (success) {
-        setLastJob(job);
-        setTimeout(() => setCurrentIndex((i) => i + 1), 300);
-      }
-    } else if (dir === -1) {
-      await markJobAsSeen(job._id);
-      setLastJob(job);
-      setTimeout(() => setCurrentIndex((i) => i + 1), 300);
-    }
-  };
-
-  const handleSave = async () => {
-    const job = filteredJobs[currentIndex];
-    if (!job) return;
-    const success = await saveJob(job);
+  if (dir === 1) { // ✅ Apply
+    const success = await applyJob(job);
     if (success) {
       setLastJob(job);
       setTimeout(() => setCurrentIndex((i) => i + 1), 300);
     }
-  };
+  } else if (dir === -1) { // ❌ Reject / Skip
+    await markJobAsSeen(job._id);
+    setLastJob(job);
+    setTimeout(() => setCurrentIndex((i) => i + 1), 300);
+  }
+};
 
-  const handleGoBack = () => {
-    if (!lastJob) return;
-    setFilteredJobs((prev) => {
-      const updated = [...prev];
-      updated.splice(currentIndex, 0, lastJob);
-      return updated;
-    });
-    setLastJob(null);
-    setCurrentIndex((i) => Math.max(i - 1, 0));
-  };
+
+const handleSave = async () => {
+  const job = filteredJobs[currentIndex];
+  if (!job) return;
+
+  const success = await saveJob(job);
+  if (success) {
+    setLastJob(job);
+    setTimeout(() => setCurrentIndex((i) => i + 1), 300);
+  }
+};
+
+
+ const handleGoBack = () => {
+  if (!lastJob) return;
+
+  // Move index one step back
+  setCurrentIndex((i) => Math.max(i - 1, 0));
+
+  // Clear the restore slot so Go Back is only available once
+  setLastJob(null);
+};
 
   const variants = {
     enter: (direction) => ({
@@ -339,7 +341,7 @@ export default function JobSeekerDashboard() {
       )}
 
       {/* Swipe row (❌ card ✅) */}
-      <div className="flex items-center justify-center gap-6 mt-4">
+      <div className="flex items-center justify-center gap-6 mt-[-10px]">
         <button
           onClick={() => handleSwipe(-1)}
           disabled={submitting}
@@ -433,7 +435,7 @@ export default function JobSeekerDashboard() {
       </div>
 
       {/* Bottom Buttons */}
-      <div className="flex items-center justify-center gap-4 mt-8 w-80">
+      <div className="flex items-center justify-center gap-4 mt-2 w-80">
         <button
           className="px-6 py-3 text-black transition rounded-full bg-sky-200 hover:bg-sky-300 disabled:opacity-60"
           onClick={handleGoBack}
