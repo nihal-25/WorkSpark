@@ -27,7 +27,6 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // ⚠️ Important: hash password before saving!
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -48,7 +47,7 @@ router.post("/signup", async (req, res) => {
 });
 
 /* ================================================================
-   🟢 LOGIN
+   🟢 LOGIN (FIXED isFirstLogin)
 ================================================================ */
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -63,8 +62,8 @@ router.post("/login", async (req, res) => {
 
     let isMatch = false;
 
-    // Check if password is bcrypt hashed
-    const isHashed = user.password.startsWith("$2b$") || user.password.startsWith("$2a$");
+    const isHashed =
+      user.password.startsWith("$2b$") || user.password.startsWith("$2a$");
 
     if (isHashed) {
       isMatch = await bcrypt.compare(password, user.password);
@@ -77,7 +76,6 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid password" });
     }
 
-    // Generate JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
@@ -87,18 +85,16 @@ router.post("/login", async (req, res) => {
     console.log("✅ Login successful for:", user.email);
 
     // ---------------------------------------------------------
-    // 🔥 CHECK FIRST LOGIN
+    // 🔥 FIXED FIRST LOGIN — return UPDATED value!
     // ---------------------------------------------------------
-    const isFirstLogin = user.isFirstLogin;
-
-    if (isFirstLogin) {
-      user.isFirstLogin = false;  // set to false after first login
+    if (user.isFirstLogin) {
+      user.isFirstLogin = false; // update only once
       await user.save();
-      console.log("🚀 First login detected, updated isFirstLogin = false");
+      console.log("🚀 First login detected → updated to false");
     }
 
     // ---------------------------------------------------------
-    // SEND RESPONSE
+    // SEND UPDATED RESPONSE
     // ---------------------------------------------------------
     res.json({
       message: "Login successful",
@@ -118,16 +114,16 @@ router.post("/login", async (req, res) => {
         expectedSalary: user.expectedSalary,
         availability: user.availability,
 
-        // 👇 NEW FIELD SENT TO FRONTEND
-        isFirstLogin: isFirstLogin,
+        // 👉 FIXED: send updated value from DB
+        isFirstLogin: user.isFirstLogin,
       },
     });
-
   } catch (error) {
     console.error("❌ Login error:", error);
     res.status(500).json({ message: error.message });
   }
 });
+
 /* ================================================================
    🟢 LAST SEEN JOB
 ================================================================ */
@@ -167,17 +163,14 @@ router.post("/forgot-password", async (req, res) => {
       return res.status(404).json({ message: "No user found with that email." });
     }
 
-    // Generate secure token
     const resetToken = crypto.randomBytes(32).toString("hex");
     user.resetToken = resetToken;
-    user.resetTokenExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+    user.resetTokenExpire = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    console.log("🧩 Reset token generated:", resetToken);
     const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
     console.log("🔗 Reset link:", resetLink);
 
-    // Configure email transport
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -186,7 +179,6 @@ router.post("/forgot-password", async (req, res) => {
       },
     });
 
-    console.log("📨 Sending email to:", email);
     await transporter.sendMail({
       from: `"WorkSpark" <${process.env.EMAIL_USER}>`,
       to: email,
@@ -227,9 +219,6 @@ router.post("/reset-password/:token", async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired token." });
     }
 
-    console.log("✅ Token valid for:", user.email);
-
-    // ✅ Hash and update new password
     user.password = await bcrypt.hash(newPassword, 10);
     user.resetToken = undefined;
     user.resetTokenExpire = undefined;
