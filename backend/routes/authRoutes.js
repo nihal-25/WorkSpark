@@ -87,11 +87,12 @@ router.post("/login", async (req, res) => {
     // ---------------------------------------------------------
     // 🔥 FIXED FIRST LOGIN — return UPDATED value!
     // ---------------------------------------------------------
-    if (user.isFirstLogin) {
-      user.isFirstLogin = false; // update only once
-      await user.save();
-      console.log("🚀 First login detected → updated to false");
-    }
+   const wasFirstLogin = user.isFirstLogin; // save the original value
+
+if (wasFirstLogin) {
+  user.isFirstLogin = false; 
+  await user.save();
+}
 
     // ---------------------------------------------------------
     // SEND UPDATED RESPONSE
@@ -100,23 +101,23 @@ router.post("/login", async (req, res) => {
       message: "Login successful",
       token,
       user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        age: user.age,
-        lastSeenJob: user.lastSeenJob,
-        skills: user.skills,
-        resume: user.resume,
-        education: user.education,
-        experience: user.experience,
-        preferredLocation: user.preferredLocation,
-        expectedSalary: user.expectedSalary,
-        availability: user.availability,
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  age: user.age,
+  lastSeenJob: user.lastSeenJob,
+  skills: user.skills,
+  resume: user.resume,
+  education: user.education,
+  experience: user.experience,
+  preferredLocation: user.preferredLocation,
+  expectedSalary: user.expectedSalary,
+  availability: user.availability,
 
-        // 👉 FIXED: send updated value from DB
-        isFirstLogin: user.isFirstLogin,
-      },
+  // ⭐ SEND ORIGINAL VALUE BEFORE UPDATE
+  isFirstLogin: wasFirstLogin,
+},
     });
   } catch (error) {
     console.error("❌ Login error:", error);
