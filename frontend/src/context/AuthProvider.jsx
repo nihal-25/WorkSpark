@@ -8,22 +8,12 @@ export default function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
 
-    if (token && storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-
+    if (token) {
       API.get("/users/me", { headers: { Authorization: `Bearer ${token}` } })
         .then((res) => {
-          // 🔥 MERGE server user + localStorage user
-          // ensures isFirstLogin is never lost
-          const updatedUser = {
-            ...parsedUser,   // keeps isFirstLogin and role
-            ...res.data,     // overwrites fields returned by backend
-          };
-
-          setUser(updatedUser);
-          localStorage.setItem("user", JSON.stringify(updatedUser));
+          setUser(res.data);
+          localStorage.setItem("user", JSON.stringify(res.data));
         })
         .catch(() => {
           localStorage.removeItem("token");
@@ -37,7 +27,6 @@ export default function AuthProvider({ children }) {
   }, []);
 
   const login = (userData, token) => {
-    // Always store server version which contains correct isFirstLogin
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", token);
     setUser(userData);

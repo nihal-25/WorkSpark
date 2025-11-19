@@ -39,7 +39,9 @@ export default function App() {
          <Navbar />
         <div>
           <Routes>
-            <Route path="/" element={<HomeRedirect />} />
+           <Route path="/" element={<HomeRedirect />} />
+
+
             <Route 
              path="/home" 
              element={

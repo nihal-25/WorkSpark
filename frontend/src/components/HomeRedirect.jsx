@@ -7,11 +7,16 @@ export default function HomeRedirect() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (loading) return; // ⛔ wait for AuthProvider
+    if (loading) return;
 
+    // If NOT logged in → send to landing page
     if (!user) {
       navigate("/home", { replace: true });
-    } else if (user.role === "jobseeker") {
+      return;
+    }
+
+    // If logged in → redirect based on role (NOT profile/form)
+    if (user.role === "jobseeker") {
       navigate("/jobseeker-dashboard", { replace: true });
     } else if (user.role === "recruiter") {
       navigate("/recruiter-dashboard", { replace: true });
