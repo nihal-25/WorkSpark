@@ -27,6 +27,8 @@ import AcceptedApplicants from "./pages/Recruiter/AcceptedApplicants";
 import MyInterviews from "./pages/JobSeeker/MyInterviews";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
+import HomeRedirect from "./components/HomeRedirect";
+import PublicRoute from "./components/PublicRoute";
 
 export default function App() {
   
@@ -37,14 +39,19 @@ export default function App() {
          <Navbar />
         <div>
           <Routes>
+            <Route path="/" element={<HomeRedirect />} />
             <Route 
-              path="/" 
-              element={
-                <ErrorBoundary componentName="HomeSplit">
-                  <HomeSplit />
-                </ErrorBoundary>
-              } 
-            />
+             path="/home" 
+             element={
+             <ErrorBoundary componentName="HomeSplit">
+              <PublicRoute>
+             <HomeSplit />
+            </PublicRoute>
+             
+             </ErrorBoundary>
+              }
+              />
+
             <Route 
               path="/jobseeker" 
               element={
@@ -57,7 +64,9 @@ export default function App() {
               path="/signup" 
               element={
                 <ErrorBoundary componentName="SignupGlobal">
-                  <SignupGlobal />
+                 <PublicRoute>
+                 <SignupGlobal />
+                </PublicRoute>
                 </ErrorBoundary>
               } 
             />
@@ -65,7 +74,9 @@ export default function App() {
               path="/login" 
               element={
                 <ErrorBoundary componentName="Login">
-                  <Login />
+                  <PublicRoute>
+                 <Login />
+               </PublicRoute>
                 </ErrorBoundary>
               } 
             />

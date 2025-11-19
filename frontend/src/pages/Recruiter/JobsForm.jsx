@@ -18,7 +18,6 @@ export default function JobForm() {
   const [search, setSearch] = useState("");
   const [customJobType, setCustomJobType] = useState("");
 
-  
   const jobTypes = [
     "Software Developer",
     "Web Developer",
@@ -50,7 +49,7 @@ export default function JobForm() {
     "Finance Analyst",
     "Operations Manager",
     "QA Tester",
-    "Other", // 🔹 special option
+    "Other",
   ];
 
   const filteredJobTypes = jobTypes.filter((type) =>
@@ -60,7 +59,7 @@ export default function JobForm() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // enforce 1–2 line limit for description
+    // limit 1–2 lines for short description
     if (name === "description") {
       const lines = value.split("\n");
       if (lines.length > 2) return;
@@ -93,9 +92,7 @@ export default function JobForm() {
     try {
       const res = await API.post("/jobs", payload);
       alert("✅ Job posted successfully!");
-      console.log(res.data);
 
-      // reset form
       setFormData({
         title: "",
         company: "",
@@ -117,150 +114,212 @@ export default function JobForm() {
   };
 
   return (
-  <div className="flex justify-center min-h-screen pt-24 bg-gradient-to-b from-sky-200 via-white to-sky-100">
-    <div className="w-full max-w-md p-8 border shadow-xl bg-white/90 backdrop-blur-md border-sky-100 rounded-2xl">
+    <div
+      className="flex justify-center min-h-screen pt-24  bg-gradient-to-b from-sky-200 via-white to-sky-100 max-md:px-4 max-md:pt-20"
+    >
+      <div
+        className="w-full max-w-md p-8 border shadow-xl  bg-white/90 backdrop-blur-md border-sky-100 rounded-2xl max-md:p-5 max-md:rounded-xl"
+      >
+        <h2
+          className="mb-6 text-3xl font-extrabold text-center  text-sky-700 max-md:text-xl max-md:mb-4"
+        >
+          Post a Job 📝
+        </h2>
 
-      <h2 className="mb-6 text-3xl font-extrabold text-center text-sky-700">
-        Post a Job 📝
-      </h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-md:gap-3">
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
-        <input
-          type="text"
-          name="title"
-          placeholder="Job Title"
-          value={formData.title}
-          onChange={handleChange}
-          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
-          required
-        />
-
-        <input
-          type="text"
-          name="company"
-          placeholder="Company Name"
-          value={formData.company}
-          onChange={handleChange}
-          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
-          required
-        />
-
-        <input
-          type="text"
-          name="location"
-          placeholder="Location"
-          value={formData.location}
-          onChange={handleChange}
-          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
-          required
-        />
-
-        {/* Short Description */}
-        <div>
-          <textarea
-            name="description"
-            placeholder="Short Description (max 100 characters, 1–2 lines)"
-            value={formData.description}
+          {/* Title */}
+          <input
+            type="text"
+            name="title"
+            placeholder="Job Title"
+            value={formData.title}
             onChange={handleChange}
-            className="h-16 p-3 border rounded-lg outline-none resize-none border-sky-200 focus:ring-2 focus:ring-sky-400"
-            maxLength={100}
+            className="
+              p-3 border rounded-lg outline-none border-sky-200
+              focus:ring-2 focus:ring-sky-400
+              max-md:p-2.5 max-md:text-base
+            "
             required
           />
-          <div className="text-xs text-right text-slate-500">
-            {formData.description.length}/100
-          </div>
-        </div>
 
-        {/* Full Description */}
-        <textarea
-          name="fullDescription"
-          placeholder="Full Job Description"
-          value={formData.fullDescription}
-          onChange={handleChange}
-          className="h-32 p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
-          required
-        />
-
-        <input
-          type="text"
-          name="requirements"
-          placeholder="Requirements (comma-separated)"
-          value={formData.requirements}
-          onChange={handleChange}
-          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
-        />
-
-        <input
-          type="text"
-          name="salary"
-          placeholder="Salary Range"
-          value={formData.salary}
-          onChange={handleChange}
-          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
-        />
-
-        {/* Job Type */}
-        <div>
-          <select
-            name="jobType"
-            value={formData.jobType}
+          {/* Company */}
+          <input
+            type="text"
+            name="company"
+            placeholder="Company Name"
+            value={formData.company}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
+            className="
+              p-3 border rounded-lg outline-none border-sky-200
+              focus:ring-2 focus:ring-sky-400
+              max-md:p-2.5 max-md:text-base
+            "
             required
-          >
-            <option value="">Select Job Type</option>
-            {filteredJobTypes.map((type) => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
+          />
 
-          {formData.jobType === "Other" && (
-            <input
-              type="text"
-              placeholder="Enter custom job type"
-              value={customJobType}
-              onChange={(e) => setCustomJobType(e.target.value)}
-              className="p-3 mt-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
+          {/* Location */}
+          <input
+            type="text"
+            name="location"
+            placeholder="Location"
+            value={formData.location}
+            onChange={handleChange}
+            className="
+              p-3 border rounded-lg outline-none border-sky-200
+              focus:ring-2 focus:ring-sky-400
+              max-md:p-2.5 max-md:text-base
+            "
+            required
+          />
+
+          {/* Short Description */}
+          <div>
+            <textarea
+              name="description"
+              placeholder="Short Description (max 100 characters)"
+              value={formData.description}
+              onChange={handleChange}
+              maxLength={100}
+              className="
+                h-16 p-3 border rounded-lg outline-none resize-none border-sky-200 
+                focus:ring-2 focus:ring-sky-400
+                max-md:h-14 max-md:p-2.5 max-md:text-base
+              "
               required
             />
-          )}
-        </div>
+            <div className="text-xs text-right text-slate-500">
+              {formData.description.length}/100
+            </div>
+          </div>
 
-        {/* Experience */}
-        <input
-          type="number"
-          name="minExperience"
-          placeholder="Minimum Experience (years)"
-          value={formData.minExperience}
-          onChange={handleChange}
-          min="0"
-          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
-          required
-        />
+          {/* Full Description */}
+          <textarea
+            name="fullDescription"
+            placeholder="Full Job Description"
+            value={formData.fullDescription}
+            onChange={handleChange}
+            className="
+              h-32 p-3 border rounded-lg outline-none border-sky-200
+              focus:ring-2 focus:ring-sky-400
+              max-md:h-28 max-md:p-2.5 max-md:text-base
+            "
+            required
+          />
 
-        {/* Work Mode */}
-        <select
-          name="workMode"
-          value={formData.workMode}
-          onChange={handleChange}
-          className="p-3 border rounded-lg outline-none border-sky-200 focus:ring-2 focus:ring-sky-400"
-          required
-        >
-          <option value="In Office">In Office</option>
-          <option value="Remote">Remote</option>
-          <option value="Hybrid">Hybrid</option>
-        </select>
+          {/* Requirements */}
+          <input
+            type="text"
+            name="requirements"
+            placeholder="Requirements (comma-separated)"
+            value={formData.requirements}
+            onChange={handleChange}
+            className="
+              p-3 border rounded-lg outline-none border-sky-200 
+              focus:ring-2 focus:ring-sky-400
+              max-md:p-2.5 max-md:text-base
+            "
+          />
 
-        <button
-          type="submit"
-          className="p-3 font-semibold text-white transition rounded-lg shadow-md bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700"
-        >
-          Post Job ✅
-        </button>
-      </form>
+          {/* Salary */}
+          <input
+            type="text"
+            name="salary"
+            placeholder="Salary Range"
+            value={formData.salary}
+            onChange={handleChange}
+            className="
+              p-3 border rounded-lg outline-none border-sky-200 
+              focus:ring-2 focus:ring-sky-400
+              max-md:p-2.5 max-md:text-base
+            "
+          />
+
+          {/* Job Type */}
+          <div>
+            <select
+              name="jobType"
+              value={formData.jobType}
+              onChange={handleChange}
+              className="
+                w-full p-3 border rounded-lg outline-none border-sky-200 
+                focus:ring-2 focus:ring-sky-400
+                max-md:p-2.5 max-md:text-base
+              "
+              required
+            >
+              <option value="">Select Job Type</option>
+              {filteredJobTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+
+            {/* Custom job type */}
+            {formData.jobType === "Other" && (
+              <input
+                type="text"
+                placeholder="Enter custom job type"
+                value={customJobType}
+                onChange={(e) => setCustomJobType(e.target.value)}
+                className="
+                  p-3 mt-3 border rounded-lg outline-none border-sky-200 
+                  focus:ring-2 focus:ring-sky-400
+                  max-md:p-2.5 max-md:text-base
+                "
+                required
+              />
+            )}
+          </div>
+
+          {/* Minimum Experience */}
+          <input
+            type="number"
+            name="minExperience"
+            placeholder="Minimum Experience (years)"
+            value={formData.minExperience}
+            onChange={handleChange}
+            min="0"
+            className="
+              p-3 border rounded-lg outline-none border-sky-200
+              focus:ring-2 focus:ring-sky-400
+              max-md:p-2.5 max-md:text-base
+            "
+            required
+          />
+
+          {/* Work Mode */}
+          <select
+            name="workMode"
+            value={formData.workMode}
+            onChange={handleChange}
+            className="
+              p-3 border rounded-lg outline-none border-sky-200
+              focus:ring-2 focus:ring-sky-400
+              max-md:p-2.5 max-md:text-base
+            "
+            required
+          >
+            <option value="In Office">In Office</option>
+            <option value="Remote">Remote</option>
+            <option value="Hybrid">Hybrid</option>
+          </select>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            className="
+              p-3 font-semibold text-white rounded-lg shadow-md 
+              bg-gradient-to-r from-sky-500 to-sky-600 
+              hover:from-sky-600 hover:to-sky-700
+              max-md:p-2.5 max-md:text-base
+            "
+          >
+            Post Job ✅
+          </button>
+        </form>
+      </div>
     </div>
-  </div>
-);
-
+  );
 }

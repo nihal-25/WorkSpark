@@ -11,13 +11,21 @@ export default function AuthProvider({ children }) {
     const storedUser = localStorage.getItem("user");
 
     if (token && storedUser) {
-      // Try to validate token by fetching /users/me
+      const parsedUser = JSON.parse(storedUser);
+
       API.get("/users/me", { headers: { Authorization: `Bearer ${token}` } })
         .then((res) => {
-          setUser(res.data);
+          // 🔥 MERGE server user + localStorage user
+          // ensures isFirstLogin is never lost
+          const updatedUser = {
+            ...parsedUser,   // keeps isFirstLogin and role
+            ...res.data,     // overwrites fields returned by backend
+          };
+
+          setUser(updatedUser);
+          localStorage.setItem("user", JSON.stringify(updatedUser));
         })
         .catch(() => {
-          // Invalid token — clear everything
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           setUser(null);
@@ -29,6 +37,7 @@ export default function AuthProvider({ children }) {
   }, []);
 
   const login = (userData, token) => {
+    // Always store server version which contains correct isFirstLogin
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", token);
     setUser(userData);
