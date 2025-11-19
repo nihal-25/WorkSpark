@@ -76,11 +76,30 @@ router.get("/me", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      age: user.age,
+      lastSeenJob: user.lastSeenJob,
+      skills: user.skills,
+      resume: user.resume,
+      education: user.education,
+      experience: user.experience,
+      preferredLocation: user.preferredLocation,
+      expectedSalary: user.expectedSalary,
+      availability: user.availability,
+
+      // 🟢 CRITICAL: MUST INCLUDE
+      isFirstLogin: user.isFirstLogin,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // @desc   Update logged-in user's profile
 // @route  PUT /users/me
