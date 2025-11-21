@@ -93,13 +93,13 @@ export default function ProfilePage() {
 
   return (
     <div
-      className="flex justify-center min-h-screen pt-24  bg-gradient-to-b from-sky-200 via-white to-sky-100 max-md:px-4 max-md:pt-20"
+      className="flex justify-center min-h-screen pt-24 bg-gradient-to-b from-sky-200 via-white to-sky-100 max-md:px-4 max-md:pt-20"
     >
       <div
-        className="w-full max-w-md p-6 border shadow-lg  bg-white/90 backdrop-blur-md border-sky-100 rounded-2xl max-md:p-5 max-md:rounded-xl"
+        className="w-full max-w-md p-6 border shadow-lg bg-white/90 backdrop-blur-md border-sky-100 rounded-2xl max-md:p-5 max-md:rounded-xl"
       >
         <h2
-          className="mb-6 text-2xl font-extrabold text-center  text-sky-700 max-md:text-xl max-md:mb-4"
+          className="mb-6 text-2xl font-extrabold text-center text-sky-700 max-md:text-xl max-md:mb-4"
         >
           My Profile
         </h2>
@@ -200,7 +200,7 @@ export default function ProfilePage() {
                 <button
                   onClick={handleAddSkill}
                   disabled={formData.skills.length >= 5}
-                  className="px-4 py-2 text-white rounded-lg  bg-sky-500 hover:bg-sky-600 disabled:opacity-60 max-md:px-3 max-md:text-sm"
+                  className="px-4 py-2 text-white rounded-lg bg-sky-500 hover:bg-sky-600 disabled:opacity-60 max-md:px-3 max-md:text-sm"
                 >
                   Add
                 </button>
@@ -210,7 +210,7 @@ export default function ProfilePage() {
                 {formData.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="flex items-center gap-1 px-3 py-1 text-sm rounded-full  bg-sky-100 text-sky-700 max-md:text-xs max-md:px-2 max-md:py-1"
+                    className="flex items-center gap-1 px-3 py-1 text-sm rounded-full bg-sky-100 text-sky-700 max-md:text-xs max-md:px-2 max-md:py-1"
                   >
                     {skill}
                     <button
@@ -295,7 +295,7 @@ export default function ProfilePage() {
               <span className="font-semibold text-sky-700">Resume:</span>{" "}
               {profile.resume ? (
                 <a
-                  href={`http://localhost:5000/${profile.resume}`}
+                  href={`https://workspark.onrender.com/${profile.resume}`}
                   target="_blank"
                   className="underline text-sky-600"
                 >
