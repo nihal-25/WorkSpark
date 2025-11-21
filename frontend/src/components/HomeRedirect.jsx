@@ -9,16 +9,26 @@ export default function HomeRedirect() {
   useEffect(() => {
     if (loading) return;
 
-    // If NOT logged in → send to landing page
+    // If NOT logged in → landing page
     if (!user) {
       navigate("/home", { replace: true });
       return;
     }
 
-    // If logged in → redirect based on role (NOT profile/form)
+    // ⭐ NEW FIX — Respect first login
+    if (user.isFirstLogin) {
+      if (user.role === "jobseeker") {
+        navigate("/jobseeker-profile", { replace: true });
+      } else {
+        navigate("/JobForm", { replace: true });
+      }
+      return;
+    }
+
+    // ⭐ Normal redirects
     if (user.role === "jobseeker") {
       navigate("/jobseeker-dashboard", { replace: true });
-    } else if (user.role === "recruiter") {
+    } else {
       navigate("/recruiter-dashboard", { replace: true });
     }
   }, [user, loading, navigate]);

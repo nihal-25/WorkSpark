@@ -7,7 +7,7 @@ export default function ForgotPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/auth/forgot-password", { email });
+      const res = await axios.post("https://workspark.onrender.com/auth/forgot-password", { email });
       alert(res.data.message);
     } catch (err) {
       alert("Error: " + (err.response?.data?.message || err.message));
