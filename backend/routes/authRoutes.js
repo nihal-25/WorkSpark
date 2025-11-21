@@ -7,6 +7,16 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 /* ================================================================
    🟢 SIGNUP
 ================================================================ */
@@ -125,6 +135,8 @@ if (wasFirstLogin) {
   }
 });
 
+
+
 /* ================================================================
    🟢 LAST SEEN JOB
 ================================================================ */
@@ -173,15 +185,7 @@ router.post("/forgot-password", async (req, res) => {
 
     console.log("🔗 Reset link:", resetLink);
 
-    const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,  // or 587
-  secure: true, // true for 465, false for 587
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+   
 
 
     await transporter.sendMail({
@@ -201,6 +205,20 @@ router.post("/forgot-password", async (req, res) => {
   } catch (err) {
     console.error("❌ Forgot password error:", err);
     res.status(500).json({ message: err.message || "Something went wrong." });
+  }
+});
+
+router.get("/test-email", async (req, res) => {
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: "nihal6mn@gmail.com",
+      subject: "Test",
+      text: "Working!",
+    });
+    res.send("Email sent!");
+  } catch (err) {
+    res.send("Error: " + err.message);
   }
 });
 
