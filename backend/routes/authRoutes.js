@@ -2,31 +2,13 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import nodemailer from "nodemailer";
+//import nodemailer from "nodemailer";
 import User from "../models/User.js";
+import { Resend } from "resend";
 
 const router = express.Router();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  connectionTimeout: 10000,   // Add timeout
-  greetingTimeout: 10000
-});
-
-// 🔥 ADD THIS RIGHT HERE ↓↓↓
-transporter.verify((error, success) => {
-  if (error) {
-    console.log("❌ SMTP ERROR:", error);
-  } else {
-    console.log("✅ SMTP CONNECTED");
-  }
-});
 
 /* ================================================================
    🟢 SIGNUP
@@ -178,12 +160,10 @@ router.post("/last-seen", async (req, res) => {
 ================================================================ */
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
-  console.log("📩 Forgot password request for:", email);
 
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      console.warn("⚠️ No user found with that email:", email);
       return res.status(404).json({ message: "No user found with that email." });
     }
 
@@ -192,41 +172,36 @@ router.post("/forgot-password", async (req, res) => {
     user.resetTokenExpire = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-   const resetLink = `https://workspark.vercel.app/reset-password/${resetToken}`;
+    const resetLink = `https://workspark.vercel.app/reset-password/${resetToken}`;
 
-    console.log("🔗 Reset link:", resetLink);
-
-   
-
-
-    await transporter.sendMail({
-      from: `"WorkSpark" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "Password Reset Request",
+    await resend.emails.send({
+      from: process.env.EMAIL_FROM,
+      to: user.email,
+      subject: "Reset your WorkSpark Password",
       html: `
         <h2>Password Reset</h2>
         <p>Click the link below to reset your password:</p>
         <a href="${resetLink}" target="_blank">${resetLink}</a>
-        <p>This link will expire in 15 minutes.</p>
+        <p>This link expires in 15 minutes.</p>
       `,
     });
 
-    console.log("✅ Email sent successfully to:", email);
     res.json({ message: "Password reset link sent!" });
   } catch (err) {
-    console.error("❌ Forgot password error:", err);
     res.status(500).json({ message: err.message || "Something went wrong." });
   }
 });
 
+
 router.get("/test-email", async (req, res) => {
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await resend.emails.send({
+      from: process.env.EMAIL_FROM,
       to: "nihal6mn@gmail.com",
-      subject: "Test",
-      text: "Working!",
+      subject: "WorkSpark Test Email",
+      text: "Resend is working perfectly!",
     });
+
     res.send("Email sent!");
   } catch (err) {
     res.send("Error: " + err.message);
