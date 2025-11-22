@@ -10,7 +10,7 @@ export default function ResetPassword() {
   const handleReset = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`http://localhost:5000/auth/reset-password/${token}`, { newPassword });
+      await axios.post(`https://workspark.onrender.com/auth/reset-password/${token}`, { newPassword });
       alert("Password reset successful! Please log in.");
       navigate("/login");
     } catch (err) {
