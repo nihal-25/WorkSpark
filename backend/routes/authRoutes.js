@@ -197,7 +197,7 @@ router.get("/test-email", async (req, res) => {
   try {
     await resend.emails.send({
       from: process.env.EMAIL_FROM,
-      to: "nihal6mn@gmail.com",
+      to: "heyitznihal@gmail.com",
       subject: "WorkSpark Test Email",
       text: "Resend is working perfectly!",
     });
