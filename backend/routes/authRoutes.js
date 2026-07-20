@@ -7,7 +7,16 @@ import User from "../models/User.js";
 import { Resend } from "resend";
 
 const router = express.Router();
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Only initialise Resend if a key is configured. A missing key must never
+// crash the whole server at startup, it should just disable email features.
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
+if (!resend) {
+  console.warn("⚠️ RESEND_API_KEY not set. Password reset emails are disabled.");
+}
 
 
 /* ================================================================
@@ -174,6 +183,12 @@ router.post("/forgot-password", async (req, res) => {
 
     const resetLink = `https://workspark.vercel.app/reset-password/${resetToken}`;
 
+    if (!resend) {
+      return res
+        .status(503)
+        .json({ message: "Email service is not configured. Please try again later." });
+    }
+
     await resend.emails.send({
       from: process.env.EMAIL_FROM,
       to: user.email,
@@ -195,6 +210,9 @@ router.post("/forgot-password", async (req, res) => {
 
 router.get("/test-email", async (req, res) => {
   try {
+    if (!resend) {
+      return res.send("Email service is not configured (RESEND_API_KEY missing).");
+    }
     await resend.emails.send({
       from: process.env.EMAIL_FROM,
       to: "nihal6mn@gmail.com",

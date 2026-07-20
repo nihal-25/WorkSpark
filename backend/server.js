@@ -1,7 +1,7 @@
 //flow : models-->routes-->server.js
+import "dotenv/config"; // load env vars BEFORE any route imports run
 import express from "express";
 import path from "path";
-import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -14,7 +14,6 @@ import { fileURLToPath } from "url";
 
 
 
-dotenv.config();
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
