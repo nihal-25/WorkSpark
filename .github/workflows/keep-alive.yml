@@ -1,0 +1,31 @@
+name: Keep backend awake
+
+# Render's free tier spins the backend down after ~15 minutes of no traffic,
+# which makes the next request take ~50s. This workflow pings the backend on a
+# schedule so it stays warm during the day.
+
+on:
+  schedule:
+    # Every 5 minutes. GitHub runs scheduled jobs on a best-effort basis and
+    # can delay them under load, so 5 min gives enough buffer to stay under
+    # Render's 15-minute idle window.
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {} # allows manual runs from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend
+        run: |
+          for i in 1 2 3; do
+            if curl -sS -m 90 https://workspark.onrender.com/ ; then
+              echo ""
+              echo "Ping succeeded on attempt $i"
+              exit 0
+            fi
+            echo "Attempt $i failed (likely a cold start), retrying..."
+            sleep 10
+          done
+          echo "Backend did not respond after retries; it may be waking up."
+          exit 0
